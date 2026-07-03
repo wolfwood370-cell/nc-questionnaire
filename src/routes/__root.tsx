@@ -78,17 +78,37 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Questionario d'ingresso — Personal Trainer" },
-      { name: "description", content: "Compila il questionario d'ingresso per iniziare il tuo percorso di personal training: anagrafica, salute, obiettivi e stile di vita." },
+      {
+        name: "description",
+        content:
+          "Compila il questionario d'ingresso per iniziare il tuo percorso di personal training: anagrafica, salute, obiettivi e stile di vita.",
+      },
       { name: "author", content: "Lovable" },
       { property: "og:title", content: "Questionario d'ingresso — Personal Trainer" },
-      { property: "og:description", content: "Compila il questionario d'ingresso per iniziare il tuo percorso di personal training: anagrafica, salute, obiettivi e stile di vita." },
+      {
+        property: "og:description",
+        content:
+          "Compila il questionario d'ingresso per iniziare il tuo percorso di personal training: anagrafica, salute, obiettivi e stile di vita.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "Questionario d'ingresso — Personal Trainer" },
-      { name: "twitter:description", content: "Compila il questionario d'ingresso per iniziare il tuo percorso di personal training: anagrafica, salute, obiettivi e stile di vita." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3bc4a6d2-d814-4504-b4d5-a5d214c9b95f/id-preview-df5ffa1b--64a7721a-f0c0-43eb-848a-0042ccd5845a.lovable.app-1783063449402.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3bc4a6d2-d814-4504-b4d5-a5d214c9b95f/id-preview-df5ffa1b--64a7721a-f0c0-43eb-848a-0042ccd5845a.lovable.app-1783063449402.png" },
+      {
+        name: "twitter:description",
+        content:
+          "Compila il questionario d'ingresso per iniziare il tuo percorso di personal training: anagrafica, salute, obiettivi e stile di vita.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3bc4a6d2-d814-4504-b4d5-a5d214c9b95f/id-preview-df5ffa1b--64a7721a-f0c0-43eb-848a-0042ccd5845a.lovable.app-1783063449402.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3bc4a6d2-d814-4504-b4d5-a5d214c9b95f/id-preview-df5ffa1b--64a7721a-f0c0-43eb-848a-0042ccd5845a.lovable.app-1783063449402.png",
+      },
     ],
     links: [
       {
@@ -96,6 +116,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      // Font self-hosted via @fontsource (import in styles.css): nessuna
+      // richiesta a Google Fonts da una pagina che tratta dati salute (art. 9
+      // GDPR). NON reintrodurre link a fonts.googleapis.com/gstatic.com.
     ],
   }),
   shellComponent: RootShell,
@@ -106,7 +129,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="it">
       <head>
         <HeadContent />
       </head>
