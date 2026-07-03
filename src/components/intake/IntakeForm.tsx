@@ -58,9 +58,13 @@ export function IntakeForm() {
       {
         key: "salute",
         title: "Salute e sicurezza (PAR-Q+)",
-        render: () => <PlaceholderStep title="Salute e sicurezza (PAR-Q+)" />,
-        isValid: () => true,
+        render: () => (
+          <Step2Health value={health} sex={personal.sex} onChange={setHealth} />
+        ),
+        isValid: () => isHealthValid(health, personal.sex).ok,
+        invalidMessage: isHealthValid(health, personal.sex).message,
       },
+
       {
         key: "corpo",
         title: "Corpo e obiettivo",
@@ -111,7 +115,7 @@ export function IntakeForm() {
       isValid: () => true,
     });
     return list;
-  }, [consents, personal, showNutrition]);
+  }, [consents, personal, health, showNutrition]);
 
   const total = steps.length;
   const safeIndex = Math.min(stepIndex, total - 1);
@@ -137,10 +141,11 @@ export function IntakeForm() {
     try {
       const payload: IntakePayload = {
         submission: { ...personal, consents },
-        health: {},
+        health: { ...health },
         nutrition: showNutrition ? {} : {},
         neurotype: {},
       };
+
 
       const { error } = await supabase.rpc("submit_intake", { payload });
       if (error) throw error;
