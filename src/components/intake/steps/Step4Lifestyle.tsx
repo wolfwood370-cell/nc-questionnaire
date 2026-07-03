@@ -15,7 +15,7 @@ type Step4LifestyleProps = {
   onChange: (v: Lifestyle) => void;
 };
 
-export function Step4Lifestyle({ value, onChange }:0 }: Step4LifestyleProps) {
+export function Step4Lifestyle({ value, onChange }: Step4LifestyleProps) {
   const set = (key: keyof Lifestyle, val: string) => onChange({ ...value, [key]: val });
 
   return (
