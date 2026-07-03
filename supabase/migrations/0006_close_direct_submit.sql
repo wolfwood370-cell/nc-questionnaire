@@ -1,0 +1,11 @@
+-- =============================================================
+-- Migrazione 0006 - chiuso il varco diretto su submit_intake
+-- Il gateway (Edge Function submit-intake, con Turnstile verificato
+-- server-side) è collaudato: da ora è l'UNICO ingresso. Senza questa
+-- revoca chiunque con la anon key (pubblica per definizione) poteva
+-- chiamare la RPC via PostgREST bypassando CAPTCHA, rate-limit e
+-- validazione. service_role (usato dalla Edge Function) conserva
+-- EXECUTE dalla 0003; authenticated non ha mai avuto motivo di
+-- inviare submission, quindi si revoca anche a lui.
+-- =============================================================
+revoke execute on function public.submit_intake(jsonb) from anon, authenticated;
