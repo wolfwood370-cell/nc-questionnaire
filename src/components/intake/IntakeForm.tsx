@@ -5,16 +5,20 @@ import { ProgressBar } from "./ProgressBar";
 import { Step0Consents } from "./steps/Step0Consents";
 import { Step1Personal, isPersonalValid } from "./steps/Step1Personal";
 import { Step2Health, isHealthValid } from "./steps/Step2Health";
+import { Step3Goals } from "./steps/Step3Goals";
 import { PlaceholderStep } from "./steps/PlaceholderStep";
 import {
   emptyConsents,
+  emptyGoals,
   emptyHealth,
   emptyPersonal,
   type Consents,
+  type Goals,
   type Health,
   type IntakePayload,
   type Personal,
 } from "@/lib/intake-types";
+import { isGoalsValid } from "@/lib/intake-types";
 import { supabase } from "@/lib/supabase";
 
 type StepDef = {
@@ -29,13 +33,12 @@ export function IntakeForm() {
   const [consents, setConsents] = useState<Consents>(emptyConsents);
   const [personal, setPersonal] = useState<Personal>(emptyPersonal);
   const [health, setHealth] = useState<Health>(emptyHealth);
+  const [goals, setGoals] = useState<Goals>(emptyGoals);
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
 
   const showNutrition = consents.consent_nutrition;
-
-
 
   const steps: StepDef[] = useMemo(() => {
     const list: StepDef[] = [
@@ -54,7 +57,6 @@ export function IntakeForm() {
         isValid: () => isPersonalValid(personal).ok,
         invalidMessage: isPersonalValid(personal).message,
       },
-
       {
         key: "salute",
         title: "Salute e sicurezza (PAR-Q+)",
@@ -64,12 +66,12 @@ export function IntakeForm() {
         isValid: () => isHealthValid(health, personal.sex).ok,
         invalidMessage: isHealthValid(health, personal.sex).message,
       },
-
       {
         key: "corpo",
         title: "Corpo e obiettivo",
-        render: () => <PlaceholderStep title="Corpo e obiettivo" />,
-        isValid: () => true,
+        render: () => <Step3Goals value={goals} onChange={setGoals} />,
+        isValid: () => isGoalsValid(goals).ok,
+        invalidMessage: isGoalsValid(goals).message,
       },
       {
         key: "stile",
@@ -115,7 +117,7 @@ export function IntakeForm() {
       isValid: () => true,
     });
     return list;
-  }, [consents, personal, health, showNutrition]);
+  }, [consents, personal, health, goals, showNutrition]);
 
   const total = steps.length;
   const safeIndex = Math.min(stepIndex, total - 1);
@@ -142,10 +144,10 @@ export function IntakeForm() {
       const payload: IntakePayload = {
         submission: { ...personal, consents },
         health: { ...health },
+        goals: { ...goals },
         nutrition: showNutrition ? {} : {},
         neurotype: {},
       };
-
 
       const { error } = await supabase.rpc("submit_intake", { payload });
       if (error) throw error;

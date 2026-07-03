@@ -74,6 +74,43 @@ export const emptyHealth: Health = {
   safety_allergy_detail: "",
 };
 
+export type Goals = {
+  height_cm: string;
+  weight_kg: string;
+  weight_history: string;
+  weight_target: string;
+  main_goal: string;
+  aesthetic_goal: string;
+  deadline_event: string;
+  movement_goal: string;
+};
+
+export const emptyGoals: Goals = {
+  height_cm: "",
+  weight_kg: "",
+  weight_history: "",
+  weight_target: "",
+  main_goal: "",
+  aesthetic_goal: "",
+  deadline_event: "",
+  movement_goal: "",
+};
+
+export function isGoalsValid(g: Goals): { ok: boolean; message: string } {
+  const h = parseFloat(g.height_cm);
+  const w = parseFloat(g.weight_kg);
+  if (Number.isNaN(h) || h <= 0) {
+    return { ok: false, message: "Inserisci un'altezza valida in cm." };
+  }
+  if (Number.isNaN(w) || w <= 0) {
+    return { ok: false, message: "Inserisci un peso valido in kg." };
+  }
+  if (!g.main_goal.trim()) {
+    return { ok: false, message: "Descrivi il tuo obiettivo principale." };
+  }
+  return { ok: true, message: "" };
+}
+
 export type Submission = Record<string, unknown>;
 export type Nutrition = Record<string, unknown>;
 export type Neurotype = Record<string, string>;
@@ -81,6 +118,7 @@ export type Neurotype = Record<string, string>;
 export type IntakePayload = {
   submission: Submission & { consents: Consents };
   health: Record<string, unknown>;
+  goals: Record<string, unknown>;
   nutrition: Nutrition;
   neurotype: Neurotype;
 };
