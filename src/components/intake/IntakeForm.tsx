@@ -5,12 +5,15 @@ import { ProgressBar } from "./ProgressBar";
 import { Step0Consents } from "./steps/Step0Consents";
 import { Step1Personal, isPersonalValid } from "./steps/Step1Personal";
 import { Step2Health, isHealthValid } from "./steps/Step2Health";
+import { Step3Goals, isGoalsValid } from "./steps/Step3Goals";
 import { PlaceholderStep } from "./steps/PlaceholderStep";
 import {
   emptyConsents,
+  emptyGoals,
   emptyHealth,
   emptyPersonal,
   type Consents,
+  type Goals,
   type Health,
   type IntakePayload,
   type Personal,
