@@ -1,16 +1,37 @@
 export type Consents = {
-  consent_health: boolean; // OBBLIGATORIO true
-  consent_nutrition: boolean; // Si/No -> abilita sezione 6
-  consent_photos: boolean; // Si/No
-  consent_share_medical: boolean; // Si/No
-  consent_marketing: boolean; // Si/No
-  consent_disclaimer: boolean; // OBBLIGATORIO true
+  consent_health: boolean;
+  consent_nutrition: boolean;
+  consent_photos: boolean;
+  consent_share_medical: boolean;
+  consent_marketing: boolean;
+  consent_disclaimer: boolean;
+};
+
+export type Sex = "maschio" | "femmina";
+export type Pronoun = "tu_lei" | "tu_lui" | "voi_loro";
+
+export type Personal = {
+  full_name: string;
+  sex: Sex | "";
+  pronoun: Pronoun | "";
+  birth_date: string; // AAAA-MM-GG
+  phone: string;
+  email: string;
+};
+
+export const emptyPersonal: Personal = {
+  full_name: "",
+  sex: "",
+  pronoun: "",
+  birth_date: "",
+  phone: "",
+  email: "",
 };
 
 export type Submission = Record<string, unknown>;
 export type Health = Record<string, unknown>;
 export type Nutrition = Record<string, unknown>;
-export type Neurotype = Record<string, string>; // q01..q30 -> "A".."E"
+export type Neurotype = Record<string, string>;
 
 export type IntakePayload = {
   submission: Submission & { consents: Consents };

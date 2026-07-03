@@ -3,8 +3,15 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ProgressBar } from "./ProgressBar";
 import { Step0Consents } from "./steps/Step0Consents";
+import { Step1Personal, isPersonalValid } from "./steps/Step1Personal";
 import { PlaceholderStep } from "./steps/PlaceholderStep";
-import { emptyConsents, type Consents, type IntakePayload } from "@/lib/intake-types";
+import {
+  emptyConsents,
+  emptyPersonal,
+  type Consents,
+  type IntakePayload,
+  type Personal,
+} from "@/lib/intake-types";
 import { supabase } from "@/lib/supabase";
 
 type StepDef = {
@@ -17,11 +24,13 @@ type StepDef = {
 
 export function IntakeForm() {
   const [consents, setConsents] = useState<Consents>(emptyConsents);
+  const [personal, setPersonal] = useState<Personal>(emptyPersonal);
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
 
   const showNutrition = consents.consent_nutrition;
+
 
   const steps: StepDef[] = useMemo(() => {
     const list: StepDef[] = [
@@ -36,9 +45,11 @@ export function IntakeForm() {
       {
         key: "anagrafica",
         title: "Anagrafica e contatti",
-        render: () => <PlaceholderStep title="Anagrafica e contatti" />,
-        isValid: () => true,
+        render: () => <Step1Personal value={personal} onChange={setPersonal} />,
+        isValid: () => isPersonalValid(personal).ok,
+        invalidMessage: isPersonalValid(personal).message,
       },
+
       {
         key: "salute",
         title: "Salute e sicurezza (PAR-Q+)",
@@ -95,7 +106,7 @@ export function IntakeForm() {
       isValid: () => true,
     });
     return list;
-  }, [consents, showNutrition]);
+  }, [consents, personal, showNutrition]);
 
   const total = steps.length;
   const safeIndex = Math.min(stepIndex, total - 1);
@@ -120,11 +131,12 @@ export function IntakeForm() {
     setSubmitting(true);
     try {
       const payload: IntakePayload = {
-        submission: { consents },
+        submission: { ...personal, consents },
         health: {},
         nutrition: showNutrition ? {} : {},
         neurotype: {},
       };
+
       const { error } = await supabase.rpc("submit_intake", { payload });
       if (error) throw error;
       setDone(true);
