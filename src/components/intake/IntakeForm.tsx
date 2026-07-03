@@ -131,11 +131,12 @@ export function IntakeForm() {
     setSubmitting(true);
     try {
       const payload: IntakePayload = {
-        submission: { consents },
+        submission: { ...personal, consents },
         health: {},
         nutrition: showNutrition ? {} : {},
         neurotype: {},
       };
+
       const { error } = await supabase.rpc("submit_intake", { payload });
       if (error) throw error;
       setDone(true);
