@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactElement } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ProgressBar } from "./ProgressBar";
@@ -10,7 +10,7 @@ import { supabase } from "@/lib/supabase";
 type StepDef = {
   key: string;
   title: string;
-  render: () => JSX.Element;
+  render: () => ReactElement;
   isValid: () => boolean;
   invalidMessage?: string;
 };
