@@ -252,11 +252,8 @@ export type Submission = Record<string, unknown>;
 export type Neurotype = Record<string, string>;
 
 export type IntakePayload = {
-  submission: Submission & { consents: Consents };
+  submission: Record<string, unknown>;
   health: Record<string, unknown>;
-  goals: Record<string, unknown>;
-  lifestyle: Record<string, unknown>;
-  training: Record<string, unknown>;
   nutrition?: Record<string, unknown>;
   neurotype: Neurotype;
 };

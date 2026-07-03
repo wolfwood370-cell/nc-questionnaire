@@ -155,11 +155,17 @@ export function IntakeForm() {
     setSubmitting(true);
     try {
       const payload: IntakePayload = {
-        submission: { ...personal, logistics, consents },
+        submission: {
+          ...consents,
+          ...personal,
+          ...goals,
+          height_cm: parseFloat(goals.height_cm) || 0,
+          weight_kg: parseFloat(goals.weight_kg) || 0,
+          ...lifestyle,
+          ...training,
+          ...logistics,
+        },
         health: { ...health },
-        goals: { ...goals },
-        lifestyle: { ...lifestyle },
-        training: { ...training },
         neurotype: { ...neurotype },
       };
       if (showNutrition) {
