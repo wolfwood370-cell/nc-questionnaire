@@ -16,6 +16,10 @@ dist-ssr
 .nitro
 *.local
 
+# Variabili d'ambiente (anon key pubblica ma teniamo il file fuori dal repo)
+.env
+.env.*
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars

@@ -10,12 +10,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { StepShell } from "../StepShell";
-import type {
-  CycleStatus,
-  Health,
-  Sex,
-  YesNoNa,
-} from "@/lib/intake-types";
+import { anyParqYes } from "@/lib/intake-types";
+import type { CycleStatus, Health, Sex, YesNoNa } from "@/lib/intake-types";
 
 type Props = {
   value: Health;
@@ -28,8 +24,7 @@ const PARQ: Array<{ key: keyof Health; label: string }> = [
   { key: "parq_chest_pain", label: "Provi dolore al torace a riposo o durante l'attività?" },
   {
     key: "parq_balance",
-    label:
-      "Negli ultimi 12 mesi hai perso l'equilibrio a causa di capogiri o perso conoscenza?",
+    label: "Negli ultimi 12 mesi hai perso l'equilibrio a causa di capogiri o perso conoscenza?",
   },
   {
     key: "parq_other_chronic",
@@ -48,8 +43,7 @@ const PARQ: Array<{ key: keyof Health; label: string }> = [
 ];
 
 export function Step2Health({ value, sex, onChange }: Props) {
-  const set = <K extends keyof Health>(k: K, v: Health[K]) =>
-    onChange({ ...value, [k]: v });
+  const set = <K extends keyof Health>(k: K, v: Health[K]) => onChange({ ...value, [k]: v });
 
   const showCycle = sex === "femmina";
 
@@ -70,15 +64,20 @@ export function Step2Health({ value, sex, onChange }: Props) {
         ))}
       </div>
 
-      <Field id="conditions_meds" label="Se hai risposto Sì sopra, elenca condizioni e farmaci">
-        <Textarea
+      {anyParqYes(value) ? (
+        <Field
           id="conditions_meds"
-          rows={3}
-          value={value.conditions_meds}
-          onChange={(e) => set("conditions_meds", e.target.value)}
-          placeholder="Es. ipertensione, tiroide, farmaci in corso…"
-        />
-      </Field>
+          label="Hai risposto Sì ad almeno una domanda: elenca condizioni e farmaci"
+        >
+          <Textarea
+            id="conditions_meds"
+            rows={3}
+            value={value.conditions_meds}
+            onChange={(e) => set("conditions_meds", e.target.value)}
+            placeholder="Es. ipertensione, tiroide, farmaci in corso…"
+          />
+        </Field>
+      ) : null}
 
       <YesNoBool
         name="pain_now"
@@ -110,10 +109,7 @@ export function Step2Health({ value, sex, onChange }: Props) {
       </Field>
 
       <Field id="pregnancy" label="Sei in gravidanza o post-partum?" required>
-        <Select
-          value={value.pregnancy}
-          onValueChange={(v) => set("pregnancy", v as YesNoNa)}
-        >
+        <Select value={value.pregnancy} onValueChange={(v) => set("pregnancy", v as YesNoNa)}>
           <SelectTrigger id="pregnancy">
             <SelectValue placeholder="Seleziona…" />
           </SelectTrigger>
@@ -140,9 +136,7 @@ export function Step2Health({ value, sex, onChange }: Props) {
                 <SelectItem value="irregolare">Irregolare</SelectItem>
                 <SelectItem value="assente_3m">Assente da più di 3 mesi</SelectItem>
                 <SelectItem value="menopausa">Menopausa</SelectItem>
-                <SelectItem value="contraccezione_ormonale">
-                  Contraccezione ormonale
-                </SelectItem>
+                <SelectItem value="contraccezione_ormonale">Contraccezione ormonale</SelectItem>
               </SelectContent>
             </Select>
           </Field>
@@ -244,15 +238,13 @@ export function isHealthValid(v: Health, sex: Sex | ""): { ok: boolean; message?
     if (typeof v[q.key] !== "boolean")
       return { ok: false, message: `Rispondi Sì o No a: "${q.label}"` };
   }
-  if (v.pain_now === null)
-    return { ok: false, message: "Indica se hai dolore in questo momento." };
+  if (v.pain_now === null) return { ok: false, message: "Indica se hai dolore in questo momento." };
   if (v.pain_now === true && !v.pain_where.trim())
     return { ok: false, message: "Indica dove hai dolore." };
   if (!v.pregnancy)
     return { ok: false, message: "Rispondi alla domanda su gravidanza/post-partum." };
   if (sex === "femmina") {
-    if (!v.cycle_status)
-      return { ok: false, message: "Seleziona lo stato del ciclo mestruale." };
+    if (!v.cycle_status) return { ok: false, message: "Seleziona lo stato del ciclo mestruale." };
     if (
       (v.cycle_status === "irregolare" || v.cycle_status === "assente_3m") &&
       !v.cycle_since.trim()

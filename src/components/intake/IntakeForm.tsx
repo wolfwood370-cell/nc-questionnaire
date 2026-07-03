@@ -31,7 +31,14 @@ import {
   type Personal,
   type Training,
 } from "@/lib/intake-types";
-import { isGoalsValid, isLifestyleValid, isLogisticsValid, isNutritionValid, isTrainingValid } from "@/lib/intake-types";
+import {
+  buildHealthPayload,
+  isGoalsValid,
+  isLifestyleValid,
+  isLogisticsValid,
+  isNutritionValid,
+  isTrainingValid,
+} from "@/lib/intake-types";
 import { supabase } from "@/lib/supabase";
 
 type StepDef = {
@@ -78,9 +85,7 @@ export function IntakeForm() {
       {
         key: "salute",
         title: "Salute e sicurezza (PAR-Q+)",
-        render: () => (
-          <Step2Health value={health} sex={personal.sex} onChange={setHealth} />
-        ),
+        render: () => <Step2Health value={health} sex={personal.sex} onChange={setHealth} />,
         isValid: () => isHealthValid(health, personal.sex).ok,
         invalidMessage: isHealthValid(health, personal.sex).message,
       },
@@ -130,7 +135,18 @@ export function IntakeForm() {
       invalidMessage: isNeurotypeValid(neurotype).message,
     });
     return list;
-  }, [consents, personal, health, goals, lifestyle, training, nutrition, logistics, neurotype, showNutrition]);
+  }, [
+    consents,
+    personal,
+    health,
+    goals,
+    lifestyle,
+    training,
+    nutrition,
+    logistics,
+    neurotype,
+    showNutrition,
+  ]);
 
   const total = steps.length;
   const safeIndex = Math.min(stepIndex, total - 1);
@@ -147,9 +163,16 @@ export function IntakeForm() {
   const goBack = () => setStepIndex((i) => Math.max(i - 1, 0));
 
   const handleSubmit = async () => {
-    if (!consents.consent_health || !consents.consent_disclaimer) {
-      toast.error("Consensi obbligatori mancanti: non è possibile inviare il questionario.");
-      setStepIndex(0);
+    // Rivalida TUTTI gli step prima dell'invio: il pulsante di submit non passa
+    // da goNext, quindi senza questo controllo un neurotipo incompleto (o uno
+    // step reso invalido tornando indietro) verrebbe inviato lo stesso.
+    const firstInvalid = steps.findIndex((s) => !s.isValid());
+    if (firstInvalid !== -1) {
+      setStepIndex(firstInvalid);
+      toast.error(
+        steps[firstInvalid].invalidMessage ??
+          "Completa i campi richiesti prima di inviare il questionario.",
+      );
       return;
     }
     setSubmitting(true);
@@ -165,7 +188,7 @@ export function IntakeForm() {
           ...training,
           ...logistics,
         },
-        health: { ...health },
+        health: buildHealthPayload(health, personal.sex),
         neurotype: { ...neurotype },
       };
       if (showNutrition) {
@@ -175,12 +198,11 @@ export function IntakeForm() {
       const { error } = await supabase.rpc("submit_intake", { payload });
       if (error) throw error;
       setDone(true);
-    } catch (err) {
-      console.error(err);
+    } catch {
+      // Non loggare né mostrare l'errore grezzo: può contenere dati salute
+      // (art. 9 GDPR) provenienti dal payload (es. violazioni di CHECK).
       toast.error(
-        err instanceof Error
-          ? `Invio non riuscito: ${err.message}`
-          : "Invio non riuscito. Riprova più tardi.",
+        "Invio non riuscito. Controlla la connessione e riprova; se il problema persiste, contattami direttamente.",
       );
     } finally {
       setSubmitting(false);
@@ -209,9 +231,7 @@ export function IntakeForm() {
         <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           Questionario d'ingresso
         </p>
-        <h1 className="mt-1 text-xl font-semibold text-foreground sm:text-2xl">
-          {current.title}
-        </h1>
+        <h1 className="mt-1 text-xl font-semibold text-foreground sm:text-2xl">{current.title}</h1>
       </header>
 
       <ProgressBar current={safeIndex} total={total} />

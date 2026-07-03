@@ -30,11 +30,7 @@ export const emptyPersonal: Personal = {
 
 export type YesNoNa = "si" | "no" | "na";
 export type CycleStatus =
-  | "regolare"
-  | "irregolare"
-  | "assente_3m"
-  | "menopausa"
-  | "contraccezione_ormonale";
+  "regolare" | "irregolare" | "assente_3m" | "menopausa" | "contraccezione_ormonale";
 
 export type Health = {
   parq_heart: boolean | null;
@@ -186,11 +182,14 @@ export const emptyTraining: Training = {
 };
 
 export function isTrainingValid(t: Training): { ok: boolean; message: string } {
-  if (!t.experience_level) return { ok: false, message: "Seleziona il livello di esperienza coi pesi." };
+  if (!t.experience_level)
+    return { ok: false, message: "Seleziona il livello di esperienza coi pesi." };
   if (!t.workload) return { ok: false, message: "Seleziona il carico di lavoro abituale." };
   if (!t.recovery_capacity) return { ok: false, message: "Seleziona la tua capacità di recupero." };
-  if (!t.max_days_week) return { ok: false, message: "Seleziona i giorni massimi di allenamento a settimana." };
-  if (!t.equipment.trim()) return { ok: false, message: "Indica dove ti alleni e con quale attrezzatura." };
+  if (!t.max_days_week)
+    return { ok: false, message: "Seleziona i giorni massimi di allenamento a settimana." };
+  if (!t.equipment.trim())
+    return { ok: false, message: "Indica dove ti alleni e con quale attrezzatura." };
   return { ok: true, message: "" };
 }
 
@@ -217,7 +216,8 @@ export const emptyNutrition: Nutrition = {
 };
 
 export function isNutritionValid(n: Nutrition): { ok: boolean; message: string } {
-  if (!n.diet_assessment) return { ok: false, message: "Seleziona come valuteresti la tua dieta attuale." };
+  if (!n.diet_assessment)
+    return { ok: false, message: "Seleziona come valuteresti la tua dieta attuale." };
   return { ok: true, message: "" };
 }
 
@@ -246,6 +246,50 @@ export const emptyLogistics: Logistics = {
 export function isLogisticsValid(l: Logistics): { ok: boolean; message: string } {
   if (!l.work_mode) return { ok: false, message: "Seleziona come preferisci lavorare." };
   return { ok: true, message: "" };
+}
+
+export const PARQ_KEYS = [
+  "parq_heart",
+  "parq_chest_pain",
+  "parq_balance",
+  "parq_other_chronic",
+  "parq_meds",
+  "parq_msk",
+  "parq_supervised",
+] as const;
+
+export function anyParqYes(h: Health): boolean {
+  return PARQ_KEYS.some((k) => h[k] === true);
+}
+
+/**
+ * Normalizza il blocco health per il payload: i campi condizionali ("se sì",
+ * ciclo solo se femmina) vengono svuotati quando il ramo che li mostra non è
+ * attivo, così non restano valori orfani se l'utente cambia risposta dopo
+ * averli compilati.
+ */
+export function buildHealthPayload(h: Health, sex: Sex | ""): Record<string, unknown> {
+  const isFemale = sex === "femmina";
+  const cycleNeedsSince =
+    isFemale && (h.cycle_status === "irregolare" || h.cycle_status === "assente_3m");
+  return {
+    parq_heart: h.parq_heart,
+    parq_chest_pain: h.parq_chest_pain,
+    parq_balance: h.parq_balance,
+    parq_other_chronic: h.parq_other_chronic,
+    parq_meds: h.parq_meds,
+    parq_msk: h.parq_msk,
+    parq_supervised: h.parq_supervised,
+    conditions_meds: anyParqYes(h) ? h.conditions_meds : "",
+    pain_now: h.pain_now,
+    pain_where: h.pain_now === true ? h.pain_where : "",
+    past_injuries: h.past_injuries,
+    pregnancy: h.pregnancy,
+    cycle_status: isFemale ? h.cycle_status : "",
+    cycle_since: cycleNeedsSince ? h.cycle_since : "",
+    safety_allergy: h.safety_allergy,
+    safety_allergy_detail: h.safety_allergy === true ? h.safety_allergy_detail : "",
+  };
 }
 
 export type Submission = Record<string, unknown>;

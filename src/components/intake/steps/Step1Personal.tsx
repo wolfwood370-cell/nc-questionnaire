@@ -16,8 +16,7 @@ type Props = {
 };
 
 export function Step1Personal({ value, onChange }: Props) {
-  const set = <K extends keyof Personal>(k: K, v: Personal[K]) =>
-    onChange({ ...value, [k]: v });
+  const set = <K extends keyof Personal>(k: K, v: Personal[K]) => onChange({ ...value, [k]: v });
 
   return (
     <StepShell
@@ -46,11 +45,8 @@ export function Step1Personal({ value, onChange }: Props) {
         </Select>
       </Field>
 
-      <Field id="pronoun" label="Pronome preferito" required>
-        <Select
-          value={value.pronoun}
-          onValueChange={(v) => set("pronoun", v as Pronoun)}
-        >
+      <Field id="pronoun" label="Pronome preferito (facoltativo)">
+        <Select value={value.pronoun} onValueChange={(v) => set("pronoun", v as Pronoun)}>
           <SelectTrigger id="pronoun">
             <SelectValue placeholder="Seleziona…" />
           </SelectTrigger>
@@ -128,11 +124,9 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 export function isPersonalValid(v: Personal): { ok: boolean; message?: string } {
   if (!v.full_name.trim()) return { ok: false, message: "Inserisci nome e cognome." };
   if (!v.sex) return { ok: false, message: "Seleziona il sesso biologico." };
-  if (!v.pronoun) return { ok: false, message: "Seleziona il pronome preferito." };
   if (!DATE_RE.test(v.birth_date))
     return { ok: false, message: "Inserisci una data di nascita valida (AAAA-MM-GG)." };
   if (!v.phone.trim()) return { ok: false, message: "Inserisci un numero di telefono." };
-  if (!EMAIL_RE.test(v.email.trim()))
-    return { ok: false, message: "Inserisci un'email valida." };
+  if (!EMAIL_RE.test(v.email.trim())) return { ok: false, message: "Inserisci un'email valida." };
   return { ok: true };
 }
