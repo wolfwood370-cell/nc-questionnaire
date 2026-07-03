@@ -45,7 +45,20 @@ export function personalErrors(p: Personal): FieldErrors {
   const e: FieldErrors = {};
   if (!p.full_name.trim()) e.full_name = "Inserisci nome e cognome.";
   if (!p.sex) e.sex = "Seleziona il sesso biologico.";
-  if (!DATE_RE.test(p.birth_date)) e.birth_date = "Inserisci una data di nascita valida.";
+  if (!DATE_RE.test(p.birth_date)) {
+    e.birth_date = "Inserisci una data di nascita valida.";
+  } else {
+    const d = new Date(p.birth_date + "T00:00:00");
+    const now = new Date();
+    if (isNaN(d.getTime()) || d > now) {
+      e.birth_date = "Inserisci una data di nascita valida.";
+    } else {
+      let age = now.getFullYear() - d.getFullYear();
+      const m = now.getMonth() - d.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+      if (age < 16 || age > 100) e.birth_date = "Inserisci una data di nascita valida.";
+    }
+  }
   if (!p.phone.trim()) e.phone = "Inserisci un numero di telefono.";
   if (!EMAIL_RE.test(p.email.trim())) e.email = "Inserisci un'email valida.";
   return e;
@@ -117,8 +130,10 @@ export const emptyGoals: Goals = {
 
 export function goalsErrors(g: Goals): FieldErrors {
   const e: FieldErrors = {};
-  if (!(parseFloat(g.height_cm) > 0)) e.height_cm = "Inserisci un'altezza valida in cm.";
-  if (!(parseFloat(g.weight_kg) > 0)) e.weight_kg = "Inserisci un peso valido in kg.";
+  const h = parseFloat(g.height_cm);
+  const w = parseFloat(g.weight_kg);
+  if (!(h >= 100 && h <= 250)) e.height_cm = "Inserisci un'altezza in cm tra 100 e 250.";
+  if (!(w >= 30 && w <= 300)) e.weight_kg = "Inserisci un peso in kg tra 30 e 300.";
   if (!g.main_goal.trim()) e.main_goal = "Descrivi il tuo obiettivo principale.";
   return e;
 }
