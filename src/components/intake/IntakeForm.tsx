@@ -37,6 +37,7 @@ export function IntakeForm() {
   const [personal, setPersonal] = useState<Personal>(emptyPersonal);
   const [health, setHealth] = useState<Health>(emptyHealth);
   const [goals, setGoals] = useState<Goals>(emptyGoals);
+  const [lifestyle, setLifestyle] = useState<Lifestyle>(emptyLifestyle);
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
