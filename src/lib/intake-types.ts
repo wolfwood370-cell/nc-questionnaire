@@ -152,6 +152,48 @@ export function isLifestyleValid(l: Lifestyle): { ok: boolean; message: string }
   return { ok: true, message: "" };
 }
 
+export type ExperienceLevel = "novizio" | "principiante" | "intermedio" | "avanzato" | "master";
+export type Workload = "molto_basso" | "basso" | "medio" | "alto" | "molto_alto";
+export type RecoveryCapacity = "ottima" | "buona" | "media" | "scarsa" | "pessima";
+export type MaxDaysWeek = "2" | "3" | "4" | "5" | "6";
+
+export type Training = {
+  sports_history: string;
+  current_sport: string;
+  favorite_activity: string;
+  barbell_experience: string;
+  experience_level: ExperienceLevel | "";
+  workload: Workload | "";
+  recovery_capacity: RecoveryCapacity | "";
+  max_days_week: MaxDaysWeek | "";
+  session_minutes: string;
+  equipment: string;
+  recent_maxes: string;
+};
+
+export const emptyTraining: Training = {
+  sports_history: "",
+  current_sport: "",
+  favorite_activity: "",
+  barbell_experience: "",
+  experience_level: "",
+  workload: "",
+  recovery_capacity: "",
+  max_days_week: "",
+  session_minutes: "",
+  equipment: "",
+  recent_maxes: "",
+};
+
+export function isTrainingValid(t: Training): { ok: boolean; message: string } {
+  if (!t.experience_level) return { ok: false, message: "Seleziona il livello di esperienza coi pesi." };
+  if (!t.workload) return { ok: false, message: "Seleziona il carico di lavoro abituale." };
+  if (!t.recovery_capacity) return { ok: false, message: "Seleziona la tua capacità di recupero." };
+  if (!t.max_days_week) return { ok: false, message: "Seleziona i giorni massimi di allenamento a settimana." };
+  if (!t.equipment.trim()) return { ok: false, message: "Indica dove ti alleni e con quale attrezzatura." };
+  return { ok: true, message: "" };
+}
+
 export type Submission = Record<string, unknown>;
 export type Nutrition = Record<string, unknown>;
 export type Neurotype = Record<string, string>;
@@ -161,6 +203,7 @@ export type IntakePayload = {
   health: Record<string, unknown>;
   goals: Record<string, unknown>;
   lifestyle: Record<string, unknown>;
+  training: Record<string, unknown>;
   nutrition: Nutrition;
   neurotype: Neurotype;
 };

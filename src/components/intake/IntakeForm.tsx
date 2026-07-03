@@ -7,6 +7,7 @@ import { Step1Personal, isPersonalValid } from "./steps/Step1Personal";
 import { Step2Health, isHealthValid } from "./steps/Step2Health";
 import { Step3Goals } from "./steps/Step3Goals";
 import { Step4Lifestyle } from "./steps/Step4Lifestyle";
+import { Step5Training } from "./steps/Step5Training";
 import { PlaceholderStep } from "./steps/PlaceholderStep";
 import {
   emptyConsents,
@@ -14,14 +15,16 @@ import {
   emptyHealth,
   emptyLifestyle,
   emptyPersonal,
+  emptyTraining,
   type Consents,
   type Goals,
   type Health,
   type IntakePayload,
   type Lifestyle,
   type Personal,
+  type Training,
 } from "@/lib/intake-types";
-import { isGoalsValid, isLifestyleValid } from "@/lib/intake-types";
+import { isGoalsValid, isLifestyleValid, isTrainingValid } from "@/lib/intake-types";
 import { supabase } from "@/lib/supabase";
 
 type StepDef = {
@@ -38,6 +41,7 @@ export function IntakeForm() {
   const [health, setHealth] = useState<Health>(emptyHealth);
   const [goals, setGoals] = useState<Goals>(emptyGoals);
   const [lifestyle, setLifestyle] = useState<Lifestyle>(emptyLifestyle);
+  const [training, setTraining] = useState<Training>(emptyTraining);
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
