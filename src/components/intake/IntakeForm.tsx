@@ -80,8 +80,9 @@ export function IntakeForm() {
       {
         key: "stile",
         title: "Stile di vita",
-        render: () => <PlaceholderStep title="Stile di vita" />,
-        isValid: () => true,
+        render: () => <Step4Lifestyle value={lifestyle} onChange={setLifestyle} />,
+        isValid: () => isLifestyleValid(lifestyle).ok,
+        invalidMessage: isLifestyleValid(lifestyle).message,
       },
       {
         key: "allenamento",
