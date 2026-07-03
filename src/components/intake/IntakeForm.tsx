@@ -160,7 +160,7 @@ export function IntakeForm() {
         goals: { ...goals },
         lifestyle: { ...lifestyle },
         training: { ...training },
-        neurotype: {},
+        neurotype: { ...neurotype },
       };
       if (showNutrition) {
         payload.nutrition = { ...nutrition };
