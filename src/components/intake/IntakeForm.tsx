@@ -1,7 +1,9 @@
 import { useMemo, useState, type ReactElement } from "react";
+import { FunctionsHttpError } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ProgressBar } from "./ProgressBar";
+import { TurnstileWidget } from "./TurnstileWidget";
 import { Step0Consents } from "./steps/Step0Consents";
 import { Step1Personal, isPersonalValid } from "./steps/Step1Personal";
 import { Step2Health, isHealthValid } from "./steps/Step2Health";
@@ -62,6 +64,8 @@ export function IntakeForm() {
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileReset, setTurnstileReset] = useState(0);
 
   const showNutrition = consents.consent_nutrition;
 
@@ -175,6 +179,10 @@ export function IntakeForm() {
       );
       return;
     }
+    if (!turnstileToken) {
+      toast.error("Completa la verifica anti-spam prima di inviare.");
+      return;
+    }
     setSubmitting(true);
     try {
       const payload: IntakePayload = {
@@ -195,15 +203,29 @@ export function IntakeForm() {
         payload.nutrition = { ...nutrition };
       }
 
-      const { error } = await supabase.rpc("submit_intake", { payload });
+      // L'unico ingresso pubblico è la Edge Function `submit-intake`, che
+      // verifica il token Turnstile server-side prima di salvare.
+      const { error } = await supabase.functions.invoke("submit-intake", {
+        body: { payload, turnstileToken },
+      });
       if (error) throw error;
       setDone(true);
-    } catch {
+    } catch (err) {
       // Non loggare né mostrare l'errore grezzo: può contenere dati salute
       // (art. 9 GDPR) provenienti dal payload (es. violazioni di CHECK).
-      toast.error(
-        "Invio non riuscito. Controlla la connessione e riprova; se il problema persiste, contattami direttamente.",
-      );
+      const status = err instanceof FunctionsHttpError ? err.context?.status : undefined;
+      if (status === 403) {
+        toast.error("Verifica anti-spam non superata. Completa di nuovo la verifica e riprova.");
+      } else if (status === 429) {
+        toast.error("Troppi tentativi ravvicinati. Attendi qualche minuto e riprova.");
+      } else {
+        toast.error(
+          "Invio non riuscito. Controlla la connessione e riprova; se il problema persiste, contattami direttamente.",
+        );
+      }
+      // Il token Turnstile è monouso: dopo un tentativo fallito va rigenerato.
+      setTurnstileToken(null);
+      setTurnstileReset((n) => n + 1);
     } finally {
       setSubmitting(false);
     }
@@ -240,6 +262,12 @@ export function IntakeForm() {
         {current.render()}
       </main>
 
+      {isLast ? (
+        <div className="mt-6 flex justify-center">
+          <TurnstileWidget onToken={setTurnstileToken} resetSignal={turnstileReset} />
+        </div>
+      ) : null}
+
       <nav className="mt-6 flex items-center justify-between gap-3">
         <Button
           type="button"
@@ -250,7 +278,7 @@ export function IntakeForm() {
           Indietro
         </Button>
         {isLast ? (
-          <Button type="button" onClick={handleSubmit} disabled={submitting}>
+          <Button type="button" onClick={handleSubmit} disabled={submitting || !turnstileToken}>
             {submitting ? "Invio in corso…" : "Invia questionario"}
           </Button>
         ) : (
