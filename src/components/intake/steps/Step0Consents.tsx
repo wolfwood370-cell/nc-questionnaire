@@ -1,5 +1,6 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { StepShell } from "../StepShell";
 import type { Consents } from "@/lib/intake-types";
 
@@ -9,62 +10,76 @@ type Props = {
 };
 
 export function Step0Consents({ value, onChange }: Props) {
-  const set = (k: keyof Consents) => (checked: boolean | "indeterminate") =>
-    onChange({ ...value, [k]: checked === true });
+  const setBool = (k: keyof Consents, v: boolean) => onChange({ ...value, [k]: v });
 
   return (
     <StepShell
       title="Consensi"
-      description="Prima di iniziare, leggi e conferma i consensi. I primi due sono obbligatori per poter inviare il questionario."
+      description="Leggi e conferma ciascuna voce singolarmente. Le voci contrassegnate come obbligatorie devono essere accettate per poter inviare il questionario."
     >
-      <ConsentRow
-        id="c_data"
-        checked={value.data_processing}
-        onCheckedChange={set("data_processing")}
-        required
-        title="Trattamento dei dati, inclusi dati sulla salute (obbligatorio)"
-        description="Acconsento al trattamento dei miei dati personali, incluse informazioni sulla salute, per la finalità di valutazione e programmazione dell'allenamento personale, ai sensi del Reg. UE 2016/679 (GDPR)."
+      <RequiredConsent
+        id="c_health"
+        checked={value.consent_health}
+        onCheckedChange={(v) => setBool("consent_health", v === true)}
+        title="Trattamento dei dati sulla salute (obbligatorio)"
+        description="Acconsento al trattamento dei miei dati relativi alla salute per la preparazione sportiva (necessario per iniziare)."
       />
-      <ConsentRow
-        id="c_notdoc"
-        checked={value.not_a_doctor}
-        onCheckedChange={set("not_a_doctor")}
-        required
-        title="Presa d'atto: il personal trainer non è un medico (obbligatorio)"
-        description="Dichiaro di aver compreso che il personal trainer non è un medico e non fornisce diagnosi né terapie. In presenza di patologie o dubbi mi rivolgerò a un professionista sanitario."
+
+      <YesNoConsent
+        name="consent_nutrition"
+        value={value.consent_nutrition}
+        onChange={(v) => setBool("consent_nutrition", v)}
+        title="Suggerimenti alimentari"
+        description="Desidero ricevere suggerimenti alimentari a supporto dell'allenamento e mi impegno a sottoporli al mio medico."
       />
-      <ConsentRow
-        id="c_nutr"
-        checked={value.nutrition_advice}
-        onCheckedChange={set("nutrition_advice")}
-        title="Consigli alimentari generali (facoltativo)"
-        description="Desidero ricevere indicazioni alimentari generali di tipo educativo, non sostitutive di un piano nutrizionale redatto da un professionista abilitato."
+
+      <YesNoConsent
+        name="consent_photos"
+        value={value.consent_photos}
+        onChange={(v) => setBool("consent_photos", v)}
+        title="Foto e misurazioni corporee"
+        description="Autorizzo foto e misurazioni corporee per monitorare i progressi."
       />
-      <ConsentRow
-        id="c_mkt"
-        checked={value.marketing}
-        onCheckedChange={set("marketing")}
-        title="Comunicazioni informative e promozionali (facoltativo)"
-        description="Acconsento a ricevere comunicazioni relative a servizi, novità e iniziative del personal trainer."
+
+      <YesNoConsent
+        name="consent_share_medical"
+        value={value.consent_share_medical}
+        onChange={(v) => setBool("consent_share_medical", v)}
+        title="Condivisione dati con professionisti sanitari"
+        description="Autorizzo la condivisione dei dati col mio medico o altri professionisti."
+      />
+
+      <YesNoConsent
+        name="consent_marketing"
+        value={value.consent_marketing}
+        onChange={(v) => setBool("consent_marketing", v)}
+        title="Comunicazioni non essenziali"
+        description="Desidero ricevere comunicazioni e materiale informativo non essenziali."
+      />
+
+      <RequiredConsent
+        id="c_disclaimer"
+        checked={value.consent_disclaimer}
+        onCheckedChange={(v) => setBool("consent_disclaimer", v === true)}
+        title="Presa d'atto (obbligatorio)"
+        description="Il servizio ha finalità di benessere fisico, non mediche; Nicolò è un personal trainer, non un medico/nutrizionista, e non li sostituisce."
       />
     </StepShell>
   );
 }
 
-function ConsentRow({
+function RequiredConsent({
   id,
   checked,
   onCheckedChange,
   title,
   description,
-  required,
 }: {
   id: string;
   checked: boolean;
   onCheckedChange: (v: boolean | "indeterminate") => void;
   title: string;
   description: string;
-  required?: boolean;
 }) {
   return (
     <div className="flex gap-3 rounded-lg border border-border bg-card p-4">
@@ -72,7 +87,7 @@ function ConsentRow({
         id={id}
         checked={checked}
         onCheckedChange={onCheckedChange}
-        aria-required={required}
+        aria-required
         className="mt-1"
       />
       <div className="space-y-1">
@@ -81,6 +96,47 @@ function ConsentRow({
         </Label>
         <p className="text-xs text-muted-foreground">{description}</p>
       </div>
+    </div>
+  );
+}
+
+function YesNoConsent({
+  name,
+  value,
+  onChange,
+  title,
+  description,
+}: {
+  name: string;
+  value: boolean;
+  onChange: (v: boolean) => void;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-lg border border-border bg-card p-4">
+      <div className="space-y-1">
+        <p className="text-sm font-medium leading-snug text-foreground">{title}</p>
+        <p className="text-xs text-muted-foreground">{description}</p>
+      </div>
+      <RadioGroup
+        className="mt-3 flex gap-6"
+        value={value ? "yes" : "no"}
+        onValueChange={(v) => onChange(v === "yes")}
+      >
+        <div className="flex items-center gap-2">
+          <RadioGroupItem id={`${name}_yes`} value="yes" />
+          <Label htmlFor={`${name}_yes`} className="text-sm font-normal">
+            Sì
+          </Label>
+        </div>
+        <div className="flex items-center gap-2">
+          <RadioGroupItem id={`${name}_no`} value="no" />
+          <Label htmlFor={`${name}_no`} className="text-sm font-normal">
+            No
+          </Label>
+        </div>
+      </RadioGroup>
     </div>
   );
 }
