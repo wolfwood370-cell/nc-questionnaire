@@ -111,6 +111,47 @@ export function isGoalsValid(g: Goals): { ok: boolean; message: string } {
   return { ok: true, message: "" };
 }
 
+export type StressLevel = "molto_alto" | "alto" | "medio" | "basso" | "molto_basso";
+export type SleepQuality = "ottima" | "buona" | "media" | "scarsa" | "pessima";
+export type NeatSteps = "<5000" | "5000-7500" | "7500-10000" | "10000-12500" | ">12500";
+
+export type Lifestyle = {
+  work_desc: string;
+  stress_level: StressLevel | "";
+  sleep_hours: string;
+  sleep_quality: SleepQuality | "";
+  neat_steps: NeatSteps | "";
+  water_liters: string;
+  alcohol_week: string;
+  smoking: string;
+  lifestyle_goal: string;
+};
+
+export const emptyLifestyle: Lifestyle = {
+  work_desc: "",
+  stress_level: "",
+  sleep_hours: "",
+  sleep_quality: "",
+  neat_steps: "",
+  water_liters: "",
+  alcohol_week: "",
+  smoking: "",
+  lifestyle_goal: "",
+};
+
+export function isLifestyleValid(l: Lifestyle): { ok: boolean; message: string } {
+  if (!l.stress_level) {
+    return { ok: false, message: "Seleziona il tuo livello di stress quotidiano." };
+  }
+  if (!l.sleep_quality) {
+    return { ok: false, message: "Seleziona la qualità del tuo sonno." };
+  }
+  if (!l.neat_steps) {
+    return { ok: false, message: "Seleziona la tua attività quotidiana non sportiva." };
+  }
+  return { ok: true, message: "" };
+}
+
 export type Submission = Record<string, unknown>;
 export type Nutrition = Record<string, unknown>;
 export type Neurotype = Record<string, string>;
