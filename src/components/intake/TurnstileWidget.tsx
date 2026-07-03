@@ -72,7 +72,15 @@ export function TurnstileWidget({ onToken, resetSignal = 0 }: Props) {
   const [loadError, setLoadError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
-  const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
+  // La site key Turnstile è PUBBLICA (finisce comunque nel bundle client
+  // servito a chiunque): può stare nel repo. La secret, invece, resta solo
+  // nei secret della Edge Function. Il valore cablato è quello di produzione;
+  // l'env VITE_TURNSTILE_SITE_KEY lo sovrascrive in sviluppo locale (chiave
+  // di test Cloudflare su localhost). Lovable non accetta variabili VITE_ nei
+  // secret, quindi il default cablato è ciò che rende il widget configurato
+  // sul sito pubblicato.
+  const SITE_KEY = "0x4AAAAAADvNtp_28hHdboCJ";
+  const siteKey = (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined) || SITE_KEY;
 
   useEffect(() => {
     if (!siteKey || !containerRef.current) return;
