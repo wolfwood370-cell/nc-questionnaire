@@ -6,19 +6,22 @@ import { Step0Consents } from "./steps/Step0Consents";
 import { Step1Personal, isPersonalValid } from "./steps/Step1Personal";
 import { Step2Health, isHealthValid } from "./steps/Step2Health";
 import { Step3Goals } from "./steps/Step3Goals";
+import { Step4Lifestyle } from "./steps/Step4Lifestyle";
 import { PlaceholderStep } from "./steps/PlaceholderStep";
 import {
   emptyConsents,
   emptyGoals,
   emptyHealth,
+  emptyLifestyle,
   emptyPersonal,
   type Consents,
   type Goals,
   type Health,
   type IntakePayload,
+  type Lifestyle,
   type Personal,
 } from "@/lib/intake-types";
-import { isGoalsValid } from "@/lib/intake-types";
+import { isGoalsValid, isLifestyleValid } from "@/lib/intake-types";
 import { supabase } from "@/lib/supabase";
 
 type StepDef = {
