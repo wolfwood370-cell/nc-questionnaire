@@ -4,11 +4,14 @@ import { toast } from "sonner";
 import { ProgressBar } from "./ProgressBar";
 import { Step0Consents } from "./steps/Step0Consents";
 import { Step1Personal, isPersonalValid } from "./steps/Step1Personal";
+import { Step2Health, isHealthValid } from "./steps/Step2Health";
 import { PlaceholderStep } from "./steps/PlaceholderStep";
 import {
   emptyConsents,
+  emptyHealth,
   emptyPersonal,
   type Consents,
+  type Health,
   type IntakePayload,
   type Personal,
 } from "@/lib/intake-types";
@@ -25,11 +28,13 @@ type StepDef = {
 export function IntakeForm() {
   const [consents, setConsents] = useState<Consents>(emptyConsents);
   const [personal, setPersonal] = useState<Personal>(emptyPersonal);
+  const [health, setHealth] = useState<Health>(emptyHealth);
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
 
   const showNutrition = consents.consent_nutrition;
+
 
 
   const steps: StepDef[] = useMemo(() => {
