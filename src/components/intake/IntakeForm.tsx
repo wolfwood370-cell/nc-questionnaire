@@ -9,12 +9,14 @@ import { Step3Goals } from "./steps/Step3Goals";
 import { Step4Lifestyle } from "./steps/Step4Lifestyle";
 import { Step5Training } from "./steps/Step5Training";
 import { Step6Nutrition } from "./steps/Step6Nutrition";
+import { Step7Logistics } from "./steps/Step7Logistics";
 import { PlaceholderStep } from "./steps/PlaceholderStep";
 import {
   emptyConsents,
   emptyGoals,
   emptyHealth,
   emptyLifestyle,
+  emptyLogistics,
   emptyNutrition,
   emptyPersonal,
   emptyTraining,
@@ -23,11 +25,12 @@ import {
   type Health,
   type IntakePayload,
   type Lifestyle,
+  type Logistics,
   type Nutrition,
   type Personal,
   type Training,
 } from "@/lib/intake-types";
-import { isGoalsValid, isLifestyleValid, isNutritionValid, isTrainingValid } from "@/lib/intake-types";
+import { isGoalsValid, isLifestyleValid, isLogisticsValid, isNutritionValid, isTrainingValid } from "@/lib/intake-types";
 import { supabase } from "@/lib/supabase";
 
 type StepDef = {
@@ -46,6 +49,7 @@ export function IntakeForm() {
   const [lifestyle, setLifestyle] = useState<Lifestyle>(emptyLifestyle);
   const [training, setTraining] = useState<Training>(emptyTraining);
   const [nutrition, setNutrition] = useState<Nutrition>(emptyNutrition);
+  const [logistics, setLogistics] = useState<Logistics>(emptyLogistics);
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
@@ -112,8 +116,9 @@ export function IntakeForm() {
     list.push({
       key: "logistica",
       title: "Gestione e logistica",
-      render: () => <PlaceholderStep title="Gestione e logistica" />,
-      isValid: () => true,
+      render: () => <Step7Logistics value={logistics} onChange={setLogistics} />,
+      isValid: () => isLogisticsValid(logistics).ok,
+      invalidMessage: isLogisticsValid(logistics).message,
     });
     list.push({
       key: "neurotipo",
@@ -127,7 +132,7 @@ export function IntakeForm() {
       isValid: () => true,
     });
     return list;
-  }, [consents, personal, health, goals, lifestyle, training, nutrition, showNutrition]);
+  }, [consents, personal, health, goals, lifestyle, training, nutrition, logistics, showNutrition]);
 
   const total = steps.length;
   const safeIndex = Math.min(stepIndex, total - 1);
@@ -152,7 +157,7 @@ export function IntakeForm() {
     setSubmitting(true);
     try {
       const payload: IntakePayload = {
-        submission: { ...personal, consents },
+        submission: { ...personal, logistics, consents },
         health: { ...health },
         goals: { ...goals },
         lifestyle: { ...lifestyle },

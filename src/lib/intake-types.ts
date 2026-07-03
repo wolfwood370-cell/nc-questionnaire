@@ -221,6 +221,33 @@ export function isNutritionValid(n: Nutrition): { ok: boolean; message: string }
   return { ok: true, message: "" };
 }
 
+export type WorkMode = "presenza" | "remoto" | "ibrido" | "app";
+
+export type Logistics = {
+  work_mode: WorkMode | "";
+  availability: string;
+  why_now: string;
+  past_coaching: string;
+  foreseen_obstacles: string;
+  success_definition: string;
+  support_network: string;
+};
+
+export const emptyLogistics: Logistics = {
+  work_mode: "",
+  availability: "",
+  why_now: "",
+  past_coaching: "",
+  foreseen_obstacles: "",
+  success_definition: "",
+  support_network: "",
+};
+
+export function isLogisticsValid(l: Logistics): { ok: boolean; message: string } {
+  if (!l.work_mode) return { ok: false, message: "Seleziona come preferisci lavorare." };
+  return { ok: true, message: "" };
+}
+
 export type Submission = Record<string, unknown>;
 export type Neurotype = Record<string, string>;
 
