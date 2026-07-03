@@ -6,19 +6,22 @@ import { Step0Consents } from "./steps/Step0Consents";
 import { Step1Personal, isPersonalValid } from "./steps/Step1Personal";
 import { Step2Health, isHealthValid } from "./steps/Step2Health";
 import { Step3Goals } from "./steps/Step3Goals";
+import { Step4Lifestyle } from "./steps/Step4Lifestyle";
 import { PlaceholderStep } from "./steps/PlaceholderStep";
 import {
   emptyConsents,
   emptyGoals,
   emptyHealth,
+  emptyLifestyle,
   emptyPersonal,
   type Consents,
   type Goals,
   type Health,
   type IntakePayload,
+  type Lifestyle,
   type Personal,
 } from "@/lib/intake-types";
-import { isGoalsValid } from "@/lib/intake-types";
+import { isGoalsValid, isLifestyleValid } from "@/lib/intake-types";
 import { supabase } from "@/lib/supabase";
 
 type StepDef = {
@@ -34,6 +37,7 @@ export function IntakeForm() {
   const [personal, setPersonal] = useState<Personal>(emptyPersonal);
   const [health, setHealth] = useState<Health>(emptyHealth);
   const [goals, setGoals] = useState<Goals>(emptyGoals);
+  const [lifestyle, setLifestyle] = useState<Lifestyle>(emptyLifestyle);
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
@@ -76,8 +80,9 @@ export function IntakeForm() {
       {
         key: "stile",
         title: "Stile di vita",
-        render: () => <PlaceholderStep title="Stile di vita" />,
-        isValid: () => true,
+        render: () => <Step4Lifestyle value={lifestyle} onChange={setLifestyle} />,
+        isValid: () => isLifestyleValid(lifestyle).ok,
+        invalidMessage: isLifestyleValid(lifestyle).message,
       },
       {
         key: "allenamento",
@@ -117,7 +122,7 @@ export function IntakeForm() {
       isValid: () => true,
     });
     return list;
-  }, [consents, personal, health, goals, showNutrition]);
+  }, [consents, personal, health, goals, lifestyle, showNutrition]);
 
   const total = steps.length;
   const safeIndex = Math.min(stepIndex, total - 1);
@@ -145,6 +150,7 @@ export function IntakeForm() {
         submission: { ...personal, consents },
         health: { ...health },
         goals: { ...goals },
+        lifestyle: { ...lifestyle },
         nutrition: showNutrition ? {} : {},
         neurotype: {},
       };
