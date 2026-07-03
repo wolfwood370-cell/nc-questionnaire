@@ -194,8 +194,34 @@ export function isTrainingValid(t: Training): { ok: boolean; message: string } {
   return { ok: true, message: "" };
 }
 
+export type DietAssessment = "iper" | "iso" | "ipo" | "non_so";
+
+export type Nutrition = {
+  diet_assessment: DietAssessment | "";
+  meals_desc: string;
+  diet_history: string;
+  foods_love_avoid: string;
+  intolerances: string;
+  who_cooks: string;
+  supplements: string;
+};
+
+export const emptyNutrition: Nutrition = {
+  diet_assessment: "",
+  meals_desc: "",
+  diet_history: "",
+  foods_love_avoid: "",
+  intolerances: "",
+  who_cooks: "",
+  supplements: "",
+};
+
+export function isNutritionValid(n: Nutrition): { ok: boolean; message: string } {
+  if (!n.diet_assessment) return { ok: false, message: "Seleziona come valuteresti la tua dieta attuale." };
+  return { ok: true, message: "" };
+}
+
 export type Submission = Record<string, unknown>;
-export type Nutrition = Record<string, unknown>;
 export type Neurotype = Record<string, string>;
 
 export type IntakePayload = {
@@ -204,7 +230,7 @@ export type IntakePayload = {
   goals: Record<string, unknown>;
   lifestyle: Record<string, unknown>;
   training: Record<string, unknown>;
-  nutrition: Nutrition;
+  nutrition?: Record<string, unknown>;
   neurotype: Neurotype;
 };
 
