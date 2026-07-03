@@ -85,7 +85,7 @@ export function Step3Goals({ value, onChange }: Step3GoalsProps) {
           id="aesthetic_goal"
           value={value.aesthetic_goal}
           onChange={(e) => set("aesthetic_goal", e.target.value)}
-          placeholder="Es. Vorrei tonificare braccia e add_skip_the_rest_of_the_field_placeholder_but_in_italian"
+          placeholder="Es. Vorrei tonificare braccia e addome, ridurre la pancetta, migliorare la postura."
           rows={3}
         />
       </div>
