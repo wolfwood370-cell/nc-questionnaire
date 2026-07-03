@@ -10,7 +10,7 @@ import { Step4Lifestyle } from "./steps/Step4Lifestyle";
 import { Step5Training } from "./steps/Step5Training";
 import { Step6Nutrition } from "./steps/Step6Nutrition";
 import { Step7Logistics } from "./steps/Step7Logistics";
-import { PlaceholderStep } from "./steps/PlaceholderStep";
+import { Step8Neurotype, isNeurotypeValid } from "./steps/Step8Neurotype";
 import {
   emptyConsents,
   emptyGoals,
@@ -26,6 +26,7 @@ import {
   type IntakePayload,
   type Lifestyle,
   type Logistics,
+  type Neurotype,
   type Nutrition,
   type Personal,
   type Training,
@@ -50,6 +51,7 @@ export function IntakeForm() {
   const [training, setTraining] = useState<Training>(emptyTraining);
   const [nutrition, setNutrition] = useState<Nutrition>(emptyNutrition);
   const [logistics, setLogistics] = useState<Logistics>(emptyLogistics);
+  const [neurotype, setNeurotype] = useState<Neurotype>({});
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
@@ -123,16 +125,12 @@ export function IntakeForm() {
     list.push({
       key: "neurotipo",
       title: "Neurotipo",
-      render: () => (
-        <PlaceholderStep
-          title="Neurotipo"
-          note="30 affermazioni con scala A–E: in arrivo."
-        />
-      ),
-      isValid: () => true,
+      render: () => <Step8Neurotype value={neurotype} onChange={setNeurotype} />,
+      isValid: () => isNeurotypeValid(neurotype).ok,
+      invalidMessage: isNeurotypeValid(neurotype).message,
     });
     return list;
-  }, [consents, personal, health, goals, lifestyle, training, nutrition, logistics, showNutrition]);
+  }, [consents, personal, health, goals, lifestyle, training, nutrition, logistics, neurotype, showNutrition]);
 
   const total = steps.length;
   const safeIndex = Math.min(stepIndex, total - 1);
@@ -162,7 +160,7 @@ export function IntakeForm() {
         goals: { ...goals },
         lifestyle: { ...lifestyle },
         training: { ...training },
-        neurotype: {},
+        neurotype: { ...neurotype },
       };
       if (showNutrition) {
         payload.nutrition = { ...nutrition };
