@@ -81,7 +81,7 @@ export function Step4Lifestyle({ value, onChange }: Step4LifestyleProps) {
               <SelectItem value="buona">Buona</SelectItem>
               <SelectItem value="media">Media</SelectItem>
               <SelectItem value="scarsa">Scarsa</SelectItem>
-              <SelectItem value="pessima">Pessima:ima</SelectItem>
+              <SelectItem value="pessima">Pessima</SelectItem>
             </SelectContent>
           </Select>
         </div>
