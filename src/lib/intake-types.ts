@@ -160,6 +160,7 @@ export type IntakePayload = {
   submission: Submission & { consents: Consents };
   health: Record<string, unknown>;
   goals: Record<string, unknown>;
+  lifestyle: Record<string, unknown>;
   nutrition: Nutrition;
   neurotype: Neurotype;
 };
