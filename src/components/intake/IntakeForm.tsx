@@ -91,8 +91,9 @@ export function IntakeForm() {
       {
         key: "allenamento",
         title: "Allenamento",
-        render: () => <PlaceholderStep title="Allenamento" />,
-        isValid: () => true,
+        render: () => <Step5Training value={training} onChange={setTraining} />,
+        isValid: () => isTrainingValid(training).ok,
+        invalidMessage: isTrainingValid(training).message,
       },
     ];
     if (showNutrition) {
@@ -126,7 +127,7 @@ export function IntakeForm() {
       isValid: () => true,
     });
     return list;
-  }, [consents, personal, health, goals, lifestyle, showNutrition]);
+  }, [consents, personal, health, goals, lifestyle, training, showNutrition]);
 
   const total = steps.length;
   const safeIndex = Math.min(stepIndex, total - 1);
@@ -155,6 +156,7 @@ export function IntakeForm() {
         health: { ...health },
         goals: { ...goals },
         lifestyle: { ...lifestyle },
+        training: { ...training },
         nutrition: showNutrition ? {} : {},
         neurotype: {},
       };
