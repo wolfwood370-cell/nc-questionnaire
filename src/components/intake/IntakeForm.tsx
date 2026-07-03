@@ -106,7 +106,7 @@ export function IntakeForm() {
       isValid: () => true,
     });
     return list;
-  }, [consents, showNutrition]);
+  }, [consents, personal, showNutrition]);
 
   const total = steps.length;
   const safeIndex = Math.min(stepIndex, total - 1);
