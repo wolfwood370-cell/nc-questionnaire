@@ -1,8 +1,10 @@
 export type Consents = {
-  data_processing: boolean; // obbligatorio (trattamento dati salute)
-  not_a_doctor: boolean; // obbligatorio (presa d'atto)
-  nutrition_advice: boolean; // opzionale — abilita la sezione Nutrizione
-  marketing: boolean;
+  consent_health: boolean; // OBBLIGATORIO true
+  consent_nutrition: boolean; // Si/No -> abilita sezione 6
+  consent_photos: boolean; // Si/No
+  consent_share_medical: boolean; // Si/No
+  consent_marketing: boolean; // Si/No
+  consent_disclaimer: boolean; // OBBLIGATORIO true
 };
 
 export type Submission = Record<string, unknown>;
@@ -18,8 +20,10 @@ export type IntakePayload = {
 };
 
 export const emptyConsents: Consents = {
-  data_processing: false,
-  not_a_doctor: false,
-  nutrition_advice: false,
-  marketing: false,
+  consent_health: false,
+  consent_nutrition: false,
+  consent_photos: false,
+  consent_share_medical: false,
+  consent_marketing: false,
+  consent_disclaimer: false,
 };
