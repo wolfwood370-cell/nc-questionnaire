@@ -21,7 +21,7 @@ export function IntakeForm() {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
 
-  const showNutrition = consents.nutrition_advice;
+  const showNutrition = consents.consent_nutrition;
 
   const steps: StepDef[] = useMemo(() => {
     const list: StepDef[] = [
@@ -29,7 +29,7 @@ export function IntakeForm() {
         key: "consents",
         title: "Consensi",
         render: () => <Step0Consents value={consents} onChange={setConsents} />,
-        isValid: () => consents.data_processing && consents.not_a_doctor,
+        isValid: () => consents.consent_health && consents.consent_disclaimer,
         invalidMessage:
           "Devi accettare i due consensi obbligatori per proseguire (trattamento dati salute e presa d'atto).",
       },
@@ -112,7 +112,7 @@ export function IntakeForm() {
   const goBack = () => setStepIndex((i) => Math.max(i - 1, 0));
 
   const handleSubmit = async () => {
-    if (!consents.data_processing || !consents.not_a_doctor) {
+    if (!consents.consent_health || !consents.consent_disclaimer) {
       toast.error("Consensi obbligatori mancanti: non è possibile inviare il questionario.");
       setStepIndex(0);
       return;
