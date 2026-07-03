@@ -122,7 +122,7 @@ export function IntakeForm() {
       isValid: () => true,
     });
     return list;
-  }, [consents, personal, health, goals, showNutrition]);
+  }, [consents, personal, health, goals, lifestyle, showNutrition]);
 
   const total = steps.length;
   const safeIndex = Math.min(stepIndex, total - 1);
@@ -150,6 +150,7 @@ export function IntakeForm() {
         submission: { ...personal, consents },
         health: { ...health },
         goals: { ...goals },
+        lifestyle: { ...lifestyle },
         nutrition: showNutrition ? {} : {},
         neurotype: {},
       };
