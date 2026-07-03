@@ -6,9 +6,19 @@ import { Step0Consents } from "./steps/Step0Consents";
 import { Step1Personal, isPersonalValid } from "./steps/Step1Personal";
 import { Step2Health, isHealthValid } from "./steps/Step2Health";
 import { Step3Goals } from "./steps/Step3Goals";
-import { PlaceholderStep } match j'aioue  la suite  I need to fix the import line properly - the old content had a typo that I canadian a typo in the old content: "PlaceholderStep" is mangled. Let me read the file again to get the correct current content.
-
-Actually, looking more carefully: the old_content in my previous edit was wrong because it had a mangled import line. But the line_replace tool said "Success" - so it probably only partially matched or the file state is different. Let me re-read IntakeForm.tsx to see the actual current state.
+import { PlaceholderStep } from "./steps/PlaceholderStep";
+import {
+  emptyConsents,
+  emptyGoals,
+  emptyHealth,
+  emptyPersonal,
+  type Consents,
+  type Goals,
+  type Health,
+  type IntakePayload,
+  type Personal,
+} from "@/lib/intake-types";
+import { isGoalsValid } from "@/lib/intake-types";
 import { supabase } from "@/lib/supabase";
 
 type StepDef = {
@@ -23,13 +33,12 @@ export function IntakeForm() {
   const [consents, setConsents] = useState<Consents>(emptyConsents);
   const [personal, setPersonal] = useState<Personal>(emptyPersonal);
   const [health, setHealth] = useState<Health>(emptyHealth);
+  const [goals, setGoals] = useState<Goals>(emptyGoals);
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
 
   const showNutrition = consents.consent_nutrition;
-
-
 
   const steps: StepDef[] = useMemo(() => {
     const list: StepDef[] = [
@@ -48,7 +57,6 @@ export function IntakeForm() {
         isValid: () => isPersonalValid(personal).ok,
         invalidMessage: isPersonalValid(personal).message,
       },
-
       {
         key: "salute",
         title: "Salute e sicurezza (PAR-Q+)",
@@ -58,12 +66,12 @@ export function IntakeForm() {
         isValid: () => isHealthValid(health, personal.sex).ok,
         invalidMessage: isHealthValid(health, personal.sex).message,
       },
-
       {
         key: "corpo",
         title: "Corpo e obiettivo",
-        render: () => <PlaceholderStep title="Corpo e obiettivo" />,
-        isValid: () => true,
+        render: () => <Step3Goals value={goals} onChange={setGoals} />,
+        isValid: () => isGoalsValid(goals).ok,
+        invalidMessage: isGoalsValid(goals).message,
       },
       {
         key: "stile",
@@ -109,7 +117,7 @@ export function IntakeForm() {
       isValid: () => true,
     });
     return list;
-  }, [consents, personal, health, showNutrition]);
+  }, [consents, personal, health, goals, showNutrition]);
 
   const total = steps.length;
   const safeIndex = Math.min(stepIndex, total - 1);
@@ -136,10 +144,10 @@ export function IntakeForm() {
       const payload: IntakePayload = {
         submission: { ...personal, consents },
         health: { ...health },
+        goals: { ...goals },
         nutrition: showNutrition ? {} : {},
         neurotype: {},
       };
-
 
       const { error } = await supabase.rpc("submit_intake", { payload });
       if (error) throw error;
