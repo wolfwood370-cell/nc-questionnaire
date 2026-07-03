@@ -5,19 +5,10 @@ import { ProgressBar } from "./ProgressBar";
 import { Step0Consents } from "./steps/Step0Consents";
 import { Step1Personal, isPersonalValid } from "./steps/Step1Personal";
 import { Step2Health, isHealthValid } from "./steps/Step2Health";
-import { Step3Goals, isGoalsValid } from "./steps/Step3Goals";
-import { PlaceholderStep } from "./steps/PlaceholderStep";
-import {
-  emptyConsents,
-  emptyGoals,
-  emptyHealth,
-  emptyPersonal,
-  type Consents,
-  type Goals,
-  type Health,
-  type IntakePayload,
-  type Personal,
-} from "@/lib/intake-types";
+import { Step3Goals } from "./steps/Step3Goals";
+import { PlaceholderStep } match j'aioue  la suite  I need to fix the import line properly - the old content had a typo that I canadian a typo in the old content: "PlaceholderStep" is mangled. Let me read the file again to get the correct current content.
+
+Actually, looking more carefully: the old_content in my previous edit was wrong because it had a mangled import line. But the line_replace tool said "Success" - so it probably only partially matched or the file state is different. Let me re-read IntakeForm.tsx to see the actual current state.
 import { supabase } from "@/lib/supabase";
 
 type StepDef = {
