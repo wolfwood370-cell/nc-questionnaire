@@ -3,7 +3,7 @@
 //
 // Flusso: { payload, turnstileToken } dal client
 //   1. CORS ristretto alle origin in ALLOWED_ORIGINS (secret/env)
-//   2. rate-limit per IP fidato (in-memory, per istanza)
+//   2. rate-limit per IP fidato (contatori in Postgres, rpc rate_limit_hit)
 //   3. cap dimensione body (413 oltre MAX_BODY_BYTES)
 //   4. verifica Turnstile server-side (TURNSTILE_SECRET_KEY, fail-closed)
 //   5. validazione whitelist del payload (enum/tipi dal contratto)
@@ -22,12 +22,12 @@ const TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/sit
 // Il questionario reale sta ampiamente sotto questa soglia.
 const MAX_BODY_BYTES = 200_000;
 
-// Rate limit semplice: massimo RATE_MAX richieste per IP in RATE_WINDOW_MS.
-// In-memory: vale per singola istanza della function (sufficiente come freno
-// di base; il CAPTCHA resta la difesa principale).
+// Rate limit: massimo RATE_MAX richieste per IP in RATE_WINDOW_SECONDS.
+// I contatori vivono in Postgres (rpc rate_limit_hit, migrazione 0005):
+// il collaudo ha mostrato che ogni richiesta gira su un isolate nuovo,
+// quindi qualsiasi stato in-memory non conterebbe mai oltre 1.
 const RATE_MAX = 5;
-const RATE_WINDOW_MS = 10 * 60_000;
-const hits = new Map<string, number[]>();
+const RATE_WINDOW_SECONDS = 600;
 
 // IP fidato: cf-connecting-ip è impostato dall'edge Cloudflare e non è
 // falsificabile dal client; x-forwarded-for può contenere valori dichiarati
@@ -42,23 +42,27 @@ function clientIp(req: Request): string {
   );
 }
 
-function rateLimited(ip: string): boolean {
-  const now = Date.now();
-  const windowStart = now - RATE_WINDOW_MS;
-  const prev = (hits.get(ip) ?? []).filter((t) => t > windowStart);
-  if (prev.length >= RATE_MAX) {
-    hits.set(ip, prev);
-    return true;
+// Privacy: nel DB finisce solo l'hash dell'IP, mai l'IP in chiaro.
+async function ipBucket(ip: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(ip));
+  return Array.from(new Uint8Array(digest).slice(0, 16))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+type SupabaseServerClient = ReturnType<typeof createClient>;
+
+async function rateLimited(supabase: SupabaseServerClient, ip: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc("rate_limit_hit", {
+    bucket_key: await ipBucket(ip),
+    max_hits: RATE_MAX,
+    window_seconds: RATE_WINDOW_SECONDS,
+  });
+  if (error) {
+    // fail-open SOLO sul rate-limit: il CAPTCHA resta la difesa primaria
+    return false;
   }
-  prev.push(now);
-  hits.set(ip, prev);
-  // pulizia opportunistica per non far crescere la mappa
-  if (hits.size > 10_000) {
-    for (const [k, v] of hits) {
-      if (v.every((t) => t <= windowStart)) hits.delete(k);
-    }
-  }
-  return false;
+  return data !== true;
 }
 
 function allowedOrigins(): string[] {
@@ -278,8 +282,14 @@ Deno.serve(async (req) => {
     return json(403, { error: "origin_not_allowed" }, origin);
   }
 
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    { auth: { persistSession: false, autoRefreshToken: false } },
+  );
+
   const ip = clientIp(req);
-  if (rateLimited(ip)) {
+  if (await rateLimited(supabase, ip)) {
     return json(429, { error: "rate_limited" }, origin);
   }
 
@@ -333,11 +343,6 @@ Deno.serve(async (req) => {
     return json(400, { error: "invalid_payload" }, origin);
   }
 
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    { auth: { persistSession: false, autoRefreshToken: false } },
-  );
   const { data, error } = await supabase.rpc("submit_intake", { payload });
   if (error) {
     // NON loggare né inoltrare error.message: le violazioni di vincolo
