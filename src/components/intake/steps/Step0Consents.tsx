@@ -1,142 +1,98 @@
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { StepShell } from "../StepShell";
-import type { Consents } from "@/lib/intake-types";
+import { useState } from "react";
+import { ConsentCardOptional, ConsentCardRequired } from "../controls";
+import type { Consents, FieldErrors } from "@/lib/intake-types";
 
 type Props = {
   value: Consents;
-  onChange: (next: Consents) => void;
+  onChange: (v: Consents) => void;
+  errors: FieldErrors;
+  trainerName: string;
 };
 
-export function Step0Consents({ value, onChange }: Props) {
-  const setBool = (k: keyof Consents, v: boolean) => onChange({ ...value, [k]: v });
+export function Step0Consents({ value, onChange, errors, trainerName }: Props) {
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const set = (k: keyof Consents, v: boolean) => onChange({ ...value, [k]: v });
 
   return (
-    <StepShell
-      title="Consensi"
-      description="Leggi e conferma ciascuna voce singolarmente. Le voci contrassegnate come obbligatorie devono essere accettate per poter inviare il questionario."
-    >
-      <RequiredConsent
-        id="c_health"
+    <>
+      <div className="overflow-hidden rounded-[20px] border border-line-2 bg-white">
+        <button
+          type="button"
+          aria-expanded={privacyOpen}
+          onClick={() => setPrivacyOpen((o) => !o)}
+          className="flex w-full cursor-pointer items-center gap-2.5 border-none bg-transparent px-[18px] py-[15px] text-left"
+        >
+          <span
+            aria-hidden="true"
+            className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-lg bg-brand-soft text-sm text-brand"
+          >
+            🔒
+          </span>
+          <span className="text-sm font-bold text-ink">Come tratto i tuoi dati</span>
+          <span
+            aria-hidden="true"
+            className="ml-auto text-[13px] text-faint transition-transform duration-200"
+            style={{ transform: privacyOpen ? "rotate(180deg)" : "none" }}
+          >
+            ▾
+          </span>
+        </button>
+        {privacyOpen ? (
+          <div className="px-[18px] pb-4 text-[13px] leading-[1.6] text-sub">
+            <p className="mb-2 mt-0">
+              I dati che condividi (inclusi quelli sulla salute, art. 9 GDPR) sono usati
+              esclusivamente per valutare l'idoneità e costruire il tuo programma di allenamento.
+            </p>
+            <p className="mb-2 mt-0">
+              Non vengono ceduti a terzi senza il tuo consenso esplicito. Le voci facoltative qui
+              sotto le puoi rifiutare senza conseguenze.
+            </p>
+            <p className="m-0">
+              Puoi chiedere in ogni momento accesso, rettifica o cancellazione dei tuoi dati.
+            </p>
+          </div>
+        ) : null}
+      </div>
+
+      <ConsentCardRequired
         checked={value.consent_health}
-        onCheckedChange={(v) => setBool("consent_health", v === true)}
-        title="Trattamento dei dati sulla salute (obbligatorio)"
-        description="Acconsento al trattamento dei miei dati relativi alla salute per la preparazione sportiva (necessario per iniziare)."
+        onChange={(v) => set("consent_health", v)}
+        title="Trattamento dei dati sulla salute"
+        desc="Acconsento al trattamento dei miei dati relativi alla salute per la preparazione sportiva (necessario per iniziare)."
+        error={errors.consent_health}
       />
-
-      <YesNoConsent
-        name="consent_nutrition"
+      <ConsentCardOptional
         value={value.consent_nutrition}
-        onChange={(v) => setBool("consent_nutrition", v)}
+        onChange={(v) => set("consent_nutrition", v)}
         title="Suggerimenti alimentari"
-        description="Desidero ricevere suggerimenti alimentari a supporto dell'allenamento e mi impegno a sottoporli al mio medico."
+        desc="Desidero ricevere suggerimenti alimentari a supporto dell'allenamento e mi impegno a sottoporli al mio medico."
+        hint="Se accetti, aggiungo una sezione dedicata all'alimentazione al questionario."
       />
-
-      <YesNoConsent
-        name="consent_photos"
+      <ConsentCardOptional
         value={value.consent_photos}
-        onChange={(v) => setBool("consent_photos", v)}
+        onChange={(v) => set("consent_photos", v)}
         title="Foto e misurazioni corporee"
-        description="Autorizzo foto e misurazioni corporee per monitorare i progressi."
+        desc="Autorizzo foto e misurazioni corporee per monitorare i progressi."
       />
-
-      <YesNoConsent
-        name="consent_share_medical"
+      <ConsentCardOptional
         value={value.consent_share_medical}
-        onChange={(v) => setBool("consent_share_medical", v)}
-        title="Condivisione dati con professionisti sanitari"
-        description="Autorizzo la condivisione dei dati col mio medico o altri professionisti."
+        onChange={(v) => set("consent_share_medical", v)}
+        title="Condivisione con professionisti sanitari"
+        desc="Autorizzo la condivisione dei dati col mio medico o altri professionisti."
       />
-
-      <YesNoConsent
-        name="consent_marketing"
+      <ConsentCardOptional
         value={value.consent_marketing}
-        onChange={(v) => setBool("consent_marketing", v)}
+        onChange={(v) => set("consent_marketing", v)}
         title="Comunicazioni non essenziali"
-        description="Desidero ricevere comunicazioni e materiale informativo non essenziali."
+        desc="Desidero ricevere comunicazioni e materiale informativo non essenziali."
       />
-
-      <RequiredConsent
-        id="c_disclaimer"
+      <ConsentCardRequired
         checked={value.consent_disclaimer}
-        onCheckedChange={(v) => setBool("consent_disclaimer", v === true)}
-        title="Presa d'atto (obbligatorio)"
-        description="Il servizio ha finalità di benessere fisico, non mediche; Nicolò è un personal trainer, non un medico/nutrizionista, e non li sostituisce."
+        onChange={(v) => set("consent_disclaimer", v)}
+        title="Presa d'atto"
+        desc={`Il servizio ha finalità di benessere fisico, non mediche; ${trainerName} è un personal trainer, non un medico/nutrizionista, e non li sostituisce.`}
+        error={errors.consent_disclaimer}
       />
-    </StepShell>
-  );
-}
-
-function RequiredConsent({
-  id,
-  checked,
-  onCheckedChange,
-  title,
-  description,
-}: {
-  id: string;
-  checked: boolean;
-  onCheckedChange: (v: boolean | "indeterminate") => void;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="flex gap-3 rounded-lg border border-border bg-card p-4">
-      <Checkbox
-        id={id}
-        checked={checked}
-        onCheckedChange={onCheckedChange}
-        aria-required
-        className="mt-1"
-      />
-      <div className="space-y-1">
-        <Label htmlFor={id} className="text-sm font-medium leading-snug">
-          {title}
-        </Label>
-        <p className="text-xs text-muted-foreground">{description}</p>
-      </div>
-    </div>
-  );
-}
-
-function YesNoConsent({
-  name,
-  value,
-  onChange,
-  title,
-  description,
-}: {
-  name: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="rounded-lg border border-border bg-card p-4">
-      <div className="space-y-1">
-        <p className="text-sm font-medium leading-snug text-foreground">{title}</p>
-        <p className="text-xs text-muted-foreground">{description}</p>
-      </div>
-      <RadioGroup
-        className="mt-3 flex gap-6"
-        value={value ? "yes" : "no"}
-        onValueChange={(v) => onChange(v === "yes")}
-      >
-        <div className="flex items-center gap-2">
-          <RadioGroupItem id={`${name}_yes`} value="yes" />
-          <Label htmlFor={`${name}_yes`} className="text-sm font-normal">
-            Sì
-          </Label>
-        </div>
-        <div className="flex items-center gap-2">
-          <RadioGroupItem id={`${name}_no`} value="no" />
-          <Label htmlFor={`${name}_no`} className="text-sm font-normal">
-            No
-          </Label>
-        </div>
-      </RadioGroup>
-    </div>
+    </>
   );
 }

@@ -1,179 +1,156 @@
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import type { Training } from "@/lib/intake-types";
+import { Field, Row, Seg, TextArea, TextInput } from "../controls";
+import type {
+  ExperienceLevel,
+  FieldErrors,
+  MaxDaysWeek,
+  RecoveryCapacity,
+  Training,
+  Workload,
+} from "@/lib/intake-types";
 
 type Props = {
   value: Training;
   onChange: (v: Training) => void;
+  errors: FieldErrors;
 };
 
-export function Step5Training({ value, onChange }: Props) {
-  const set = (key: keyof Training, val: string) => onChange({ ...value, [key]: val });
+const EXPERIENCE_OPTIONS = [
+  { v: "novizio", l: "Novizio" },
+  { v: "principiante", l: "Principiante" },
+  { v: "intermedio", l: "Intermedio" },
+  { v: "avanzato", l: "Avanzato" },
+  { v: "master", l: "Master" },
+] as const;
+
+const WORKLOAD_OPTIONS = [
+  { v: "molto_basso", l: "Molto basso" },
+  { v: "basso", l: "Basso" },
+  { v: "medio", l: "Medio" },
+  { v: "alto", l: "Alto" },
+  { v: "molto_alto", l: "Molto alto" },
+] as const;
+
+const RECOVERY_OPTIONS = [
+  { v: "ottima", l: "Ottima" },
+  { v: "buona", l: "Buona" },
+  { v: "media", l: "Media" },
+  { v: "scarsa", l: "Scarsa" },
+  { v: "pessima", l: "Pessima" },
+] as const;
+
+const DAYS_OPTIONS = [
+  { v: "2", l: "2" },
+  { v: "3", l: "3" },
+  { v: "4", l: "4" },
+  { v: "5", l: "5" },
+  { v: "6", l: "6" },
+] as const;
+
+export function Step5Training({ value, onChange, errors }: Props) {
+  const set = <K extends keyof Training>(k: K, v: Training[K]) => onChange({ ...value, [k]: v });
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="sports_history">Sport praticati e per quanto tempo</Label>
-        <Textarea
-          id="sports_history"
+    <>
+      <Field label="Sport praticati e per quanto tempo">
+        <TextArea
           value={value.sports_history}
-          onChange={(e) => set("sports_history", e.target.value)}
-          placeholder="Es. Calcio dai 10 ai 18 anni, nuoto per 3 anni…"
-          rows={3}
+          onChange={(v) => set("sports_history", v)}
+          placeholder="Es. calcio dai 10 ai 18 anni, nuoto per 3 anni…"
         />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="current_sport">Ultimo o attuale sport (da quando)</Label>
-          <Input
-            id="current_sport"
+      </Field>
+      <Row>
+        <Field label="Ultimo o attuale sport (da quando)">
+          <TextInput
             value={value.current_sport}
-            onChange={(e) => set("current_sport", e.target.value)}
-            placeholder="Es. Palestra da 2 anni"
+            onChange={(v) => set("current_sport", v)}
+            placeholder="Es. palestra da 2 anni"
           />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="favorite_activity">Attività fisica preferita</Label>
-          <Input
-            id="favorite_activity"
+        </Field>
+        <Field label="Attività fisica preferita">
+          <TextInput
             value={value.favorite_activity}
-            onChange={(e) => set("favorite_activity", e.target.value)}
-            placeholder="Es. Sollevamento pesi"
+            onChange={(v) => set("favorite_activity", v)}
+            placeholder="Es. sollevamento pesi"
           />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="barbell_experience">
-          Uso di bilanciere / attrezzi (crossfit, powerlifting, pesistica, kettlebell) e per quanto
-        </Label>
-        <Textarea
-          id="barbell_experience"
+        </Field>
+      </Row>
+      <Field label="Uso di bilanciere / attrezzi e per quanto">
+        <TextArea
           value={value.barbell_experience}
-          onChange={(e) => set("barbell_experience", e.target.value)}
-          placeholder="Es. Powerlifting da 3 anni, kettlebell saltuariamente."
-          rows={3}
+          onChange={(v) => set("barbell_experience", v)}
+          placeholder="Es. powerlifting da 3 anni, kettlebell saltuariamente."
         />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="experience_level">
-            Livello di esperienza coi pesi <span className="text-destructive">*</span>
-          </Label>
-          <Select value={value.experience_level} onValueChange={(v) => set("experience_level", v)}>
-            <SelectTrigger id="experience_level">
-              <SelectValue placeholder="Seleziona..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="novizio">Novizio</SelectItem>
-              <SelectItem value="principiante">Principiante</SelectItem>
-              <SelectItem value="intermedio">Intermedio</SelectItem>
-              <SelectItem value="avanzato">Avanzato</SelectItem>
-              <SelectItem value="master">Master</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="workload">
-            Carico di lavoro abituale <span className="text-destructive">*</span>
-          </Label>
-          <Select value={value.workload} onValueChange={(v) => set("workload", v)}>
-            <SelectTrigger id="workload">
-              <SelectValue placeholder="Seleziona..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="molto_basso">Molto basso</SelectItem>
-              <SelectItem value="basso">Basso</SelectItem>
-              <SelectItem value="medio">Medio</SelectItem>
-              <SelectItem value="alto">Alto</SelectItem>
-              <SelectItem value="molto_alto">Molto alto</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="recovery_capacity">
-            Capacità di recupero <span className="text-destructive">*</span>
-          </Label>
-          <Select value={value.recovery_capacity} onValueChange={(v) => set("recovery_capacity", v)}>
-            <SelectTrigger id="recovery_capacity">
-              <SelectValue placeholder="Seleziona..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ottima">Ottima</SelectItem>
-              <SelectItem value="buona">Buona</SelectItem>
-              <SelectItem value="media">Media</SelectItem>
-              <SelectItem value="scarsa">Scarsa</SelectItem>
-              <SelectItem value="pessima">Pessima</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="max_days_week">
-            Giorni massimi di allenamento a settimana <span className="text-destructive">*</span>
-          </Label>
-          <Select value={value.max_days_week} onValueChange={(v) => set("max_days_week", v)}>
-            <SelectTrigger id="max_days_week">
-              <SelectValue placeholder="Seleziona..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="2">2</SelectItem>
-              <SelectItem value="3">3</SelectItem>
-              <SelectItem value="4">4</SelectItem>
-              <SelectItem value="5">5</SelectItem>
-              <SelectItem value="6">6</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="session_minutes">Minuti per sessione</Label>
-        <Input
-          id="session_minutes"
+      </Field>
+      <Field label="Livello di esperienza coi pesi" required error={errors.experience_level}>
+        <Seg<ExperienceLevel>
+          value={value.experience_level}
+          onChange={(v) => set("experience_level", v)}
+          options={EXPERIENCE_OPTIONS}
+          error={errors.experience_level}
+          min="110px"
+          ariaLabel="Livello di esperienza coi pesi"
+        />
+      </Field>
+      <Field label="Carico di lavoro abituale" required error={errors.workload}>
+        <Seg<Workload>
+          value={value.workload}
+          onChange={(v) => set("workload", v)}
+          options={WORKLOAD_OPTIONS}
+          error={errors.workload}
+          min="104px"
+          ariaLabel="Carico di lavoro abituale"
+        />
+      </Field>
+      <Field label="Capacità di recupero" required error={errors.recovery_capacity}>
+        <Seg<RecoveryCapacity>
+          value={value.recovery_capacity}
+          onChange={(v) => set("recovery_capacity", v)}
+          options={RECOVERY_OPTIONS}
+          error={errors.recovery_capacity}
+          min="84px"
+          ariaLabel="Capacità di recupero"
+        />
+      </Field>
+      <Field
+        label="Giorni massimi di allenamento a settimana"
+        required
+        error={errors.max_days_week}
+      >
+        <Seg<MaxDaysWeek>
+          value={value.max_days_week}
+          onChange={(v) => set("max_days_week", v)}
+          options={DAYS_OPTIONS}
+          error={errors.max_days_week}
+          min="44px"
+          compact
+          ariaLabel="Giorni massimi di allenamento a settimana"
+        />
+      </Field>
+      <Field label="Minuti per sessione">
+        <TextInput
           value={value.session_minutes}
-          onChange={(e) => set("session_minutes", e.target.value)}
+          onChange={(v) => set("session_minutes", v)}
+          type="number"
+          inputMode="numeric"
           placeholder="Es. 60"
         />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="equipment">
-          Dove ti alleni e con quale attrezzatura <span className="text-destructive">*</span>
-        </Label>
-        <Textarea
-          id="equipment"
+      </Field>
+      <Field label="Dove ti alleni e con quale attrezzatura" required error={errors.equipment}>
+        <TextArea
           value={value.equipment}
-          onChange={(e) => set("equipment", e.target.value)}
-          placeholder="Es. Palestra commerciale ben attrezzata: bilancieri, rack, manubri fino a 40 kg, macchinari."
-          rows={3}
+          onChange={(v) => set("equipment", v)}
+          placeholder="Es. palestra ben attrezzata: bilancieri, rack, manubri, macchinari."
+          error={errors.equipment}
         />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="recent_maxes">
-          1RM / 3RM / 5RM recenti con data (Squat, Panca, Stacco, Lento avanti)
-        </Label>
-        <Textarea
-          id="recent_maxes"
+      </Field>
+      <Field label="1RM / 3RM / 5RM recenti con data (Squat, Panca, Stacco, Lento)">
+        <TextArea
           value={value.recent_maxes}
-          onChange={(e) => set("recent_maxes", e.target.value)}
-          placeholder={"Es.\nSquat 5RM 100 kg (03/2026)\nPanca 1RM 80 kg (05/2026)\nStacco 3RM 130 kg (04/2026)\nLento 5RM 45 kg (05/2026)"}
+          onChange={(v) => set("recent_maxes", v)}
           rows={5}
+          placeholder={"Es.\nSquat 5RM 100 kg (03/2026)\nPanca 1RM 80 kg (05/2026)"}
         />
-      </div>
-    </div>
+      </Field>
+    </>
   );
 }

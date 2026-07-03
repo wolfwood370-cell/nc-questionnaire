@@ -1,3 +1,14 @@
+/* Font self-hosted (@fontsource): niente richieste a Google Fonts — l'IP
+   dei visitatori non deve raggiungere terzi su una pagina che raccoglie
+   dati salute (art. 9 GDPR). */
+@import "@fontsource/manrope/400.css";
+@import "@fontsource/manrope/500.css";
+@import "@fontsource/manrope/600.css";
+@import "@fontsource/manrope/700.css";
+@import "@fontsource/manrope/800.css";
+@import "@fontsource/sora/700.css";
+@import "@fontsource/sora/800.css";
+
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
@@ -19,6 +30,27 @@
  */
 
 @theme inline {
+  /* --- NC Studio design system (handoff Claude Design) --- */
+  --color-brand: var(--brand);
+  --color-brand-deep: var(--brand-deep);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-bd: var(--brand-bd);
+  --color-ink: var(--ink);
+  --color-sub: var(--sub);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-line-input: var(--line-input);
+  --color-ok: var(--ok);
+  --color-ok-bg: var(--ok-bg);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --animate-nc-rise: ncRise 0.35s ease both;
+  --animate-nc-rise-slow: ncRise 0.5s ease both;
+  --animate-nc-fade: ncFade 0.2s ease;
+  /* --- fine NC Studio --- */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -61,7 +93,52 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@keyframes ncRise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ncFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 :root {
+  /* --- NC Studio (handoff): navy + neutri. Hex fedeli al design. --- */
+  --brand: #003e62;
+  --brand-deep: #005685;
+  --brand-soft: rgba(0, 62, 98, 0.08);
+  --brand-bd: rgba(0, 62, 98, 0.28);
+  --brand-ring: rgba(0, 86, 133, 0.22);
+  --brand-sh: rgba(0, 86, 133, 0.2);
+  --ink: #191c1f;
+  --sub: #41474f;
+  /* faint/ok scuriti rispetto all'handoff (#717880 / #059669) per il
+     contrasto WCAG AA su testi piccoli (>=4.5:1 anche sul gradiente) */
+  --faint: #62696f;
+  --line: #e1e2e7;
+  --line-2: #c1c7d0;
+  /* bordo dei controlli interattivi: 3:1 (WCAG 1.4.11); line-2 resta per
+     le superfici decorative come da design */
+  --line-input: #878e99;
+  --ok: #047857;
+  --ok-bg: #ecfdf5;
+  --danger: #dc2626;
+  --danger-soft: #fef2f2;
+  --bg-page: linear-gradient(135deg, #f2f3f8, #e7e8ec);
+  --surface-blur-head: rgba(248, 249, 254, 0.82);
+  --surface-blur-foot: rgba(255, 255, 255, 0.9);
+  /* --- fine NC Studio --- */
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
@@ -140,5 +217,31 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* header sticky (~120px) e footer fixed (~72px): il focus via tastiera
+     non deve finire nascosto sotto le barre */
+  html {
+    scroll-padding-top: 140px;
+    scroll-padding-bottom: 96px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--brand-deep);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: #d6e5ec;
+  }
+}
+
+@utility nc-rail-scroll {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    height: 0;
+    width: 0;
   }
 }

@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { IntakeForm } from "@/components/intake/IntakeForm";
-import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -14,8 +13,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Questionario d'ingresso — Personal Trainer" },
       {
         property: "og:description",
-        content:
-          "Questionario di valutazione iniziale per il tuo percorso di personal training.",
+        content: "Questionario di valutazione iniziale per il tuo percorso di personal training.",
       },
     ],
   }),
@@ -24,9 +22,8 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen w-full text-ink" style={{ background: "var(--bg-page)" }}>
       <IntakeForm />
-      <Toaster richColors position="top-center" />
     </div>
   );
 }

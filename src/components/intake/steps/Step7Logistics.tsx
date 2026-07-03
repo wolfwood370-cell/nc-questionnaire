@@ -1,110 +1,78 @@
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import type { Logistics } from "@/lib/intake-types";
+import { Field, Seg, TextArea, TextInput } from "../controls";
+import type { FieldErrors, Logistics, WorkMode } from "@/lib/intake-types";
 
 type Props = {
   value: Logistics;
   onChange: (v: Logistics) => void;
+  errors: FieldErrors;
 };
 
-export function Step7Logistics({ value, onChange }: Props) {
-  const set = (key: keyof Logistics, val: string) => onChange({ ...value, [key]: val });
+const WORK_MODE_OPTIONS = [
+  { v: "presenza", l: "In presenza" },
+  { v: "remoto", l: "Da remoto" },
+  { v: "ibrido", l: "Ibrido" },
+  { v: "app", l: "Solo tramite app" },
+] as const;
+
+export function Step7Logistics({ value, onChange, errors }: Props) {
+  const set = <K extends keyof Logistics>(k: K, v: Logistics[K]) => onChange({ ...value, [k]: v });
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="work_mode">
-          Come preferisci lavorare <span className="text-destructive">*</span>
-        </Label>
-        <Select value={value.work_mode} onValueChange={(v) => set("work_mode", v)}>
-          <SelectTrigger id="work_mode">
-            <SelectValue placeholder="Seleziona..." />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="presenza">In presenza</SelectItem>
-            <SelectItem value="remoto">Da remoto</SelectItem>
-            <SelectItem value="ibrido">Ibrido</SelectItem>
-            <SelectItem value="app">Solo tramite app</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="availability">Disponibilità (giorni e fasce orarie)</Label>
-        <Textarea
-          id="availability"
+    <>
+      <Field label="Come preferisci lavorare" required error={errors.work_mode}>
+        <Seg<WorkMode>
+          value={value.work_mode}
+          onChange={(v) => set("work_mode", v)}
+          options={WORK_MODE_OPTIONS}
+          error={errors.work_mode}
+          min="120px"
+          ariaLabel="Come preferisci lavorare"
+        />
+      </Field>
+      <Field label="Disponibilità (giorni e fasce orarie)">
+        <TextArea
           value={value.availability}
-          onChange={(e) => set("availability", e.target.value)}
+          onChange={(v) => set("availability", v)}
           placeholder="Es. Lun–Ven dopo le 18, sabato mattina."
-          rows={3}
         />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="why_now">Perché proprio ora</Label>
-        <Textarea
-          id="why_now"
+      </Field>
+      <Field label="Perché proprio ora">
+        <TextArea
           value={value.why_now}
-          onChange={(e) => set("why_now", e.target.value)}
-          placeholder="Es. Ho un evento fra 6 mesi, oppure ho deciso di prendermi cura di me."
-          rows={3}
+          onChange={(v) => set("why_now", v)}
+          placeholder="Es. ho un evento fra 6 mesi, ho deciso di prendermi cura di me."
         />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="past_coaching">
-          Hai già lavorato con un coach o in palestra: cosa ha funzionato e cosa no
-        </Label>
-        <Textarea
-          id="past_coaching"
+      </Field>
+      <Field label="Coaching o palestra: cosa ha funzionato e cosa no">
+        <TextArea
           value={value.past_coaching}
-          onChange={(e) => set("past_coaching", e.target.value)}
-          placeholder="Es. Con il coach precedente andavo bene con i pesi ma non seguivo la dieta."
+          onChange={(v) => set("past_coaching", v)}
           rows={4}
+          placeholder="Es. andavo bene coi pesi ma non seguivo la dieta."
         />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="foreseen_obstacles">Ostacoli che prevedi</Label>
-        <Textarea
-          id="foreseen_obstacles"
+      </Field>
+      <Field label="Ostacoli che prevedi">
+        <TextArea
           value={value.foreseen_obstacles}
-          onChange={(e) => set("foreseen_obstacles", e.target.value)}
-          placeholder="Es. Trasferte di lavoro, mancanza di tempo la sera, cene fuori frequenti."
-          rows={3}
+          onChange={(v) => set("foreseen_obstacles", v)}
+          placeholder="Es. trasferte, poco tempo la sera, cene fuori frequenti."
         />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="success_definition">
-          Fra qualche mese, cosa dovrà essere successo per farti sentire soddisfatto/a
-        </Label>
-        <Textarea
-          id="success_definition"
+      </Field>
+      <Field label="Fra qualche mese, cosa dovrà essere successo per sentirti soddisfatto/a">
+        <TextArea
           value={value.success_definition}
-          onChange={(e) => set("success_definition", e.target.value)}
-          placeholder="Es. Rientrare in una taglia, sollevare X kg, sentirmi più in forma nella vita quotidiana."
+          onChange={(v) => set("success_definition", v)}
           rows={4}
+          placeholder="Es. rientrare in una taglia, sollevare X kg, sentirmi in forma."
         />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="support_network">Supporto attorno a te (famiglia, amici, partner)</Label>
-        <Input
-          id="support_network"
+      </Field>
+      <Field label="Supporto attorno a te (famiglia, amici, partner)">
+        <TextInput
           value={value.support_network}
-          onChange={(e) => set("support_network", e.target.value)}
-          placeholder="Es. Partner molto di supporto, famiglia scettica."
+          onChange={(v) => set("support_network", v)}
+          placeholder="Es. partner di supporto, famiglia scettica."
         />
-      </div>
-    </div>
+      </Field>
+    </>
   );
 }

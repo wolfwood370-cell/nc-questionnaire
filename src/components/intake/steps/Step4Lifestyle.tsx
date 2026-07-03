@@ -1,156 +1,130 @@
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import type { Lifestyle } from "@/lib/intake-types";
+import { Field, Row, Seg, TextArea, TextInput } from "../controls";
+import type {
+  FieldErrors,
+  Lifestyle,
+  NeatSteps,
+  SleepQuality,
+  StressLevel,
+} from "@/lib/intake-types";
 
-type Step4LifestyleProps = {
+type Props = {
   value: Lifestyle;
   onChange: (v: Lifestyle) => void;
+  errors: FieldErrors;
 };
 
-export function Step4Lifestyle({ value, onChange }: Step4LifestyleProps) {
-  const set = (key: keyof Lifestyle, val: string) => onChange({ ...value, [key]: val });
+const STRESS_OPTIONS = [
+  { v: "molto_alto", l: "Molto alto" },
+  { v: "alto", l: "Alto" },
+  { v: "medio", l: "Medio" },
+  { v: "basso", l: "Basso" },
+  { v: "molto_basso", l: "Molto basso" },
+] as const;
+
+const SLEEP_OPTIONS = [
+  { v: "ottima", l: "Ottima" },
+  { v: "buona", l: "Buona" },
+  { v: "media", l: "Media" },
+  { v: "scarsa", l: "Scarsa" },
+  { v: "pessima", l: "Pessima" },
+] as const;
+
+const NEAT_OPTIONS = [
+  { v: "<5000", l: "< 5.000" },
+  { v: "5000-7500", l: "5–7,5k" },
+  { v: "7500-10000", l: "7,5–10k" },
+  { v: "10000-12500", l: "10–12,5k" },
+  { v: ">12500", l: "> 12.500" },
+] as const;
+
+export function Step4Lifestyle({ value, onChange, errors }: Props) {
+  const set = <K extends keyof Lifestyle>(k: K, v: Lifestyle[K]) => onChange({ ...value, [k]: v });
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="work_desc">
-          Lavoro, ore/settimana, sedentario o in movimento, orari (fissi/turni/notturni){" "}
-          <span className="text-destructive">*</span>
-        </Label>
-        <Textarea
-          id="work_desc"
+    <>
+      <Field label="Lavoro, ore/settimana, sedentario o in movimento, orari" required>
+        <TextArea
           value={value.work_desc}
-          onChange={(e) => set("work_desc", e.target.value)}
-          placeholder="Es. Lavoro in ufficio 40h/sett, sedentario, orari fissi 9–18. A volte turni serali."
+          onChange={(v) => set("work_desc", v)}
           rows={4}
+          placeholder="Es. ufficio 40h/sett, sedentario, orari fissi 9–18."
         />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="stress_level">
-          Stress quotidiano <span className="text-destructive">*</span>
-        </Label>
-        <Select
+      </Field>
+      <Field label="Stress quotidiano" required error={errors.stress_level}>
+        <Seg<StressLevel>
           value={value.stress_level}
-          onValueChange={(v) => set("stress_level", v)}
-        >
-          <SelectTrigger id="stress_level">
-            <SelectValue placeholder="Seleziona..." />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="molto_alto">Molto alto</SelectItem>
-            <SelectItem value="alto">Alto</SelectItem>
-            <SelectItem value="medio">Medio</SelectItem>
-            <SelectItem value="basso">Basso</SelectItem>
-            <SelectItem value="molto_basso">Molto basso</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="sleep_hours">Ore di sonno a notte</Label>
-          <Input
-            id="sleep_hours"
+          onChange={(v) => set("stress_level", v)}
+          options={STRESS_OPTIONS}
+          error={errors.stress_level}
+          min="104px"
+          ariaLabel="Stress quotidiano"
+        />
+      </Field>
+      <Row>
+        <Field label="Ore di sonno a notte">
+          <TextInput
             value={value.sleep_hours}
-            onChange={(e) => set("sleep_hours", e.target.value)}
+            onChange={(v) => set("sleep_hours", v)}
             placeholder="Es. 6–7"
           />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="sleep  ">
-            Qualità del sonno <span className="text-destructive">*</span>
-          </Label>
-          <Select
+        </Field>
+        <Field label="Qualità del sonno" required error={errors.sleep_quality}>
+          <Seg<SleepQuality>
             value={value.sleep_quality}
-            onValueChange={(v) => set("sleep_quality", v)}
-          >
-            <SelectTrigger id="sleep_quality">
-              <SelectValue placeholder="Seleziona..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ottima">Ottima</SelectItem>
-              <SelectItem value="buona">Buona</SelectItem>
-              <SelectItem value="media">Media</SelectItem>
-              <SelectItem value="scarsa">Scarsa</SelectItem>
-              <SelectItem value="pessima">Pessima</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="neat_steps">
-          Attività quotidiana non sportiva (passi / NEAT){" "}
-          <span className="text-destructive">*</span>
-        </Label>
-        <Select
+            onChange={(v) => set("sleep_quality", v)}
+            options={SLEEP_OPTIONS}
+            error={errors.sleep_quality}
+            min="84px"
+            ariaLabel="Qualità del sonno"
+          />
+        </Field>
+      </Row>
+      <Field
+        label="Attività quotidiana non sportiva (passi / NEAT)"
+        required
+        error={errors.neat_steps}
+      >
+        <Seg<NeatSteps>
           value={value.neat_steps}
-          onValueChange={(v) => set("neat_steps", v)}
-        >
-          <SelectTrigger id="neat_steps">
-            <SelectValue placeholder="Seleziona una fascia..." />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="<5000">Meno di 5.000 passi</SelectItem>
-            <SelectItem value="5000-7500">5.000 – 7.500 passi</SelectItem>
-            <SelectItem value="7500-10000">7.500 – 10.000 passi</SelectItem>
-            <SelectItem value="10000-12500">10.000 – 12.500 passi</SelectItem>
-            <SelectItem value=">12500">Più di 12.500 passi</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="space-y-2">
-          <Label htmlFor="water_liters">Acqua al giorno (litri)</Label>
-          <Input
-            id="water_liters"
+          onChange={(v) => set("neat_steps", v)}
+          options={NEAT_OPTIONS}
+          error={errors.neat_steps}
+          min="88px"
+          compact
+          ariaLabel="Attività quotidiana non sportiva (passi al giorno)"
+        />
+      </Field>
+      <Row>
+        <Field label="Acqua/giorno (L)">
+          <TextInput
             value={value.water_liters}
-            onChange={(e) => set("water_liters", e.target.value)}
+            onChange={(v) => set("water_liters", v)}
+            inputMode="numeric"
             placeholder="Es. 1.5"
           />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="alcohol_week">Alcol a settimana</Label>
-          <Input
-            id="alcohol_week"
+        </Field>
+        <Field label="Alcol/settimana">
+          <TextInput
             value={value.alcohol_week}
-            onChange={(e) => set("alcohol_week", e.target.value)}
-            placeholder="Es. 2 bicchieri di vino"
+            onChange={(v) => set("alcohol_week", v)}
+            placeholder="Es. 2 bicchieri"
           />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="smoking">Fumo (quante al giorno)</Label>
-          <Input
-            id="smoking"
+        </Field>
+        <Field label="Fumo (al giorno)">
+          <TextInput
             value={value.smoking}
-            onChange={(e) => set("smoking", e.target.value)}
-            placeholder="Es. 5 sigarette, o 'Non fumo'"
+            onChange={(v) => set("smoking", v)}
+            placeholder="Es. 5, o 'Non fumo'"
           />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="lifestyle_goal">
-          Qualcosa nello stile di vita che vuoi migliorare
-        </Label>
-        <Textarea
-          id="lifestyle_goal"
+        </Field>
+      </Row>
+      <Field label="Nello stile di vita, cosa vuoi migliorare">
+        <TextArea
           value={value.lifestyle_goal}
-          onChange={(e) => set("lifestyle_goal", e.target.value)}
-          placeholder="Es. Vorrei dormire di più, ridurre lo stress da lavoro, camminare di più durante la giornata."
-          rows={4}
+          onChange={(v) => set("lifestyle_goal", v)}
+          placeholder="Es. dormire di più, ridurre lo stress, camminare di più."
         />
-      </div>
-    </div>
+      </Field>
+    </>
   );
 }

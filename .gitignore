@@ -24,6 +24,9 @@ dist-ssr
 .wrangler/
 .dev.vars
 
+# Artefatti browser Playwright MCP (snapshot/screenshot del form: mai nel repo)
+.playwright-mcp/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

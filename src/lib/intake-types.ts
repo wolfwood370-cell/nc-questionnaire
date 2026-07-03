@@ -1,3 +1,9 @@
+/** Mappa chiave campo -> messaggio d'errore (italiano) per la validazione inline. */
+export type FieldErrors = Record<string, string>;
+
+export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
 export type Consents = {
   consent_health: boolean;
   consent_nutrition: boolean;
@@ -6,6 +12,13 @@ export type Consents = {
   consent_marketing: boolean;
   consent_disclaimer: boolean;
 };
+
+export function consentsErrors(c: Consents): FieldErrors {
+  const e: FieldErrors = {};
+  if (!c.consent_health) e.consent_health = "Consenso obbligatorio per proseguire.";
+  if (!c.consent_disclaimer) e.consent_disclaimer = "Consenso obbligatorio per proseguire.";
+  return e;
+}
 
 export type Sex = "maschio" | "femmina";
 export type Pronoun = "tu_lei" | "tu_lui" | "voi_loro";
@@ -27,6 +40,16 @@ export const emptyPersonal: Personal = {
   phone: "",
   email: "",
 };
+
+export function personalErrors(p: Personal): FieldErrors {
+  const e: FieldErrors = {};
+  if (!p.full_name.trim()) e.full_name = "Inserisci nome e cognome.";
+  if (!p.sex) e.sex = "Seleziona il sesso biologico.";
+  if (!DATE_RE.test(p.birth_date)) e.birth_date = "Inserisci una data di nascita valida.";
+  if (!p.phone.trim()) e.phone = "Inserisci un numero di telefono.";
+  if (!EMAIL_RE.test(p.email.trim())) e.email = "Inserisci un'email valida.";
+  return e;
+}
 
 export type YesNoNa = "si" | "no" | "na";
 export type CycleStatus =
@@ -92,19 +115,12 @@ export const emptyGoals: Goals = {
   movement_goal: "",
 };
 
-export function isGoalsValid(g: Goals): { ok: boolean; message: string } {
-  const h = parseFloat(g.height_cm);
-  const w = parseFloat(g.weight_kg);
-  if (Number.isNaN(h) || h <= 0) {
-    return { ok: false, message: "Inserisci un'altezza valida in cm." };
-  }
-  if (Number.isNaN(w) || w <= 0) {
-    return { ok: false, message: "Inserisci un peso valido in kg." };
-  }
-  if (!g.main_goal.trim()) {
-    return { ok: false, message: "Descrivi il tuo obiettivo principale." };
-  }
-  return { ok: true, message: "" };
+export function goalsErrors(g: Goals): FieldErrors {
+  const e: FieldErrors = {};
+  if (!(parseFloat(g.height_cm) > 0)) e.height_cm = "Inserisci un'altezza valida in cm.";
+  if (!(parseFloat(g.weight_kg) > 0)) e.weight_kg = "Inserisci un peso valido in kg.";
+  if (!g.main_goal.trim()) e.main_goal = "Descrivi il tuo obiettivo principale.";
+  return e;
 }
 
 export type StressLevel = "molto_alto" | "alto" | "medio" | "basso" | "molto_basso";
@@ -135,17 +151,12 @@ export const emptyLifestyle: Lifestyle = {
   lifestyle_goal: "",
 };
 
-export function isLifestyleValid(l: Lifestyle): { ok: boolean; message: string } {
-  if (!l.stress_level) {
-    return { ok: false, message: "Seleziona il tuo livello di stress quotidiano." };
-  }
-  if (!l.sleep_quality) {
-    return { ok: false, message: "Seleziona la qualità del tuo sonno." };
-  }
-  if (!l.neat_steps) {
-    return { ok: false, message: "Seleziona la tua attività quotidiana non sportiva." };
-  }
-  return { ok: true, message: "" };
+export function lifestyleErrors(l: Lifestyle): FieldErrors {
+  const e: FieldErrors = {};
+  if (!l.stress_level) e.stress_level = "Seleziona il livello di stress.";
+  if (!l.sleep_quality) e.sleep_quality = "Seleziona la qualità del sonno.";
+  if (!l.neat_steps) e.neat_steps = "Seleziona una fascia.";
+  return e;
 }
 
 export type ExperienceLevel = "novizio" | "principiante" | "intermedio" | "avanzato" | "master";
@@ -181,16 +192,14 @@ export const emptyTraining: Training = {
   recent_maxes: "",
 };
 
-export function isTrainingValid(t: Training): { ok: boolean; message: string } {
-  if (!t.experience_level)
-    return { ok: false, message: "Seleziona il livello di esperienza coi pesi." };
-  if (!t.workload) return { ok: false, message: "Seleziona il carico di lavoro abituale." };
-  if (!t.recovery_capacity) return { ok: false, message: "Seleziona la tua capacità di recupero." };
-  if (!t.max_days_week)
-    return { ok: false, message: "Seleziona i giorni massimi di allenamento a settimana." };
-  if (!t.equipment.trim())
-    return { ok: false, message: "Indica dove ti alleni e con quale attrezzatura." };
-  return { ok: true, message: "" };
+export function trainingErrors(t: Training): FieldErrors {
+  const e: FieldErrors = {};
+  if (!t.experience_level) e.experience_level = "Seleziona il livello.";
+  if (!t.workload) e.workload = "Seleziona il carico di lavoro.";
+  if (!t.recovery_capacity) e.recovery_capacity = "Seleziona la capacità di recupero.";
+  if (!t.max_days_week) e.max_days_week = "Seleziona i giorni.";
+  if (!t.equipment.trim()) e.equipment = "Indica dove ti alleni e con quale attrezzatura.";
+  return e;
 }
 
 export type DietAssessment = "iper" | "iso" | "ipo" | "non_so";
@@ -215,10 +224,10 @@ export const emptyNutrition: Nutrition = {
   supplements: "",
 };
 
-export function isNutritionValid(n: Nutrition): { ok: boolean; message: string } {
-  if (!n.diet_assessment)
-    return { ok: false, message: "Seleziona come valuteresti la tua dieta attuale." };
-  return { ok: true, message: "" };
+export function nutritionErrors(n: Nutrition): FieldErrors {
+  const e: FieldErrors = {};
+  if (!n.diet_assessment) e.diet_assessment = "Seleziona una risposta.";
+  return e;
 }
 
 export type WorkMode = "presenza" | "remoto" | "ibrido" | "app";
@@ -243,9 +252,10 @@ export const emptyLogistics: Logistics = {
   support_network: "",
 };
 
-export function isLogisticsValid(l: Logistics): { ok: boolean; message: string } {
-  if (!l.work_mode) return { ok: false, message: "Seleziona come preferisci lavorare." };
-  return { ok: true, message: "" };
+export function logisticsErrors(l: Logistics): FieldErrors {
+  const e: FieldErrors = {};
+  if (!l.work_mode) e.work_mode = "Seleziona come preferisci lavorare.";
+  return e;
 }
 
 export const PARQ_KEYS = [
@@ -261,6 +271,130 @@ export const PARQ_KEYS = [
 export function anyParqYes(h: Health): boolean {
   return PARQ_KEYS.some((k) => h[k] === true);
 }
+
+export function healthErrors(h: Health, sex: Sex | ""): FieldErrors {
+  const e: FieldErrors = {};
+  for (const k of PARQ_KEYS) {
+    if (h[k] === null) e[k] = "Rispondi Sì o No.";
+  }
+  if (h.pain_now === null) e.pain_now = "Rispondi Sì o No.";
+  if (h.pain_now === true && !h.pain_where.trim()) e.pain_where = "Indica dove hai dolore.";
+  if (!h.pregnancy) e.pregnancy = "Seleziona una risposta.";
+  if (sex === "femmina") {
+    if (!h.cycle_status) e.cycle_status = "Seleziona lo stato del ciclo.";
+    if (
+      (h.cycle_status === "irregolare" || h.cycle_status === "assente_3m") &&
+      !h.cycle_since.trim()
+    ) {
+      e.cycle_since = "Indica da quando.";
+    }
+  }
+  if (h.safety_allergy === null) e.safety_allergy = "Rispondi Sì o No.";
+  if (h.safety_allergy === true && !h.safety_allergy_detail.trim()) {
+    e.safety_allergy_detail = "Descrivi le allergie/reazioni.";
+  }
+  return e;
+}
+
+export const NEURO_LETTERS = ["A", "B", "C", "D", "E"] as const;
+export const NEURO_TOTAL = 30;
+export const NEURO_PER_PAGE = 6;
+export const NEURO_PAGES = Math.ceil(NEURO_TOTAL / NEURO_PER_PAGE);
+
+export function neuroKey(i: number): string {
+  return `q${String(i).padStart(2, "0")}`;
+}
+
+export function neurotypeErrors(n: Neurotype): FieldErrors {
+  const e: FieldErrors = {};
+  for (let i = 1; i <= NEURO_TOTAL; i++) {
+    const v = n[neuroKey(i)];
+    if (!v || !(NEURO_LETTERS as readonly string[]).includes(v)) {
+      e[neuroKey(i)] = "Scegli una risposta.";
+    }
+  }
+  return e;
+}
+
+export function neurotypePageErrors(n: Neurotype, page: number): FieldErrors {
+  const e: FieldErrors = {};
+  const start = page * NEURO_PER_PAGE;
+  for (let i = start + 1; i <= Math.min(start + NEURO_PER_PAGE, NEURO_TOTAL); i++) {
+    const v = n[neuroKey(i)];
+    if (!v || !(NEURO_LETTERS as readonly string[]).includes(v)) {
+      e[neuroKey(i)] = "Scegli una risposta.";
+    }
+  }
+  return e;
+}
+
+/** Etichette leggibili per i valori enum (riepilogo pre-invio). */
+export const ENUM_LABELS: Record<string, Record<string, string>> = {
+  sex: { maschio: "Maschio", femmina: "Femmina" },
+  pronoun: { tu_lei: "Tu/Lei", tu_lui: "Tu/Lui", voi_loro: "Voi/Loro" },
+  pregnancy: { si: "Sì", no: "No", na: "Non applicabile" },
+  cycle_status: {
+    regolare: "Regolare",
+    irregolare: "Irregolare",
+    assente_3m: "Assente da +3 mesi",
+    menopausa: "Menopausa",
+    contraccezione_ormonale: "Contraccezione ormonale",
+  },
+  stress_level: {
+    molto_alto: "Molto alto",
+    alto: "Alto",
+    medio: "Medio",
+    basso: "Basso",
+    molto_basso: "Molto basso",
+  },
+  sleep_quality: {
+    ottima: "Ottima",
+    buona: "Buona",
+    media: "Media",
+    scarsa: "Scarsa",
+    pessima: "Pessima",
+  },
+  neat_steps: {
+    "<5000": "< 5.000 passi",
+    "5000-7500": "5.000–7.500",
+    "7500-10000": "7.500–10.000",
+    "10000-12500": "10.000–12.500",
+    ">12500": "> 12.500",
+  },
+  experience_level: {
+    novizio: "Novizio",
+    principiante: "Principiante",
+    intermedio: "Intermedio",
+    avanzato: "Avanzato",
+    master: "Master",
+  },
+  workload: {
+    molto_basso: "Molto basso",
+    basso: "Basso",
+    medio: "Medio",
+    alto: "Alto",
+    molto_alto: "Molto alto",
+  },
+  recovery_capacity: {
+    ottima: "Ottima",
+    buona: "Buona",
+    media: "Media",
+    scarsa: "Scarsa",
+    pessima: "Pessima",
+  },
+  diet_assessment: {
+    iper: "Ipercalorica",
+    iso: "Isocalorica",
+    ipo: "Ipocalorica",
+    non_so: "Non saprei",
+  },
+  work_mode: {
+    presenza: "In presenza",
+    remoto: "Da remoto",
+    ibrido: "Ibrido",
+    app: "Solo tramite app",
+  },
+};
 
 /**
  * Normalizza il blocco health per il payload: i campi condizionali ("se sì",
