@@ -11,7 +11,7 @@
 | `VITE_TURNSTILE_SITE_KEY` (client)            | Chiave di TEST Cloudflare `1x00000000000000000000AA` (always-pass, non blocca nulla) | Site key REALE del widget Turnstile                                                                |
 | `TURNSTILE_SECRET_KEY` (secret Edge Function) | Secret di TEST Cloudflare (always-pass)                                              | Secret REALE (solo in Edge Functions → Secrets; MAI nel client, nel repo o nei secrets di Lovable) |
 | `ALLOWED_ORIGINS` (secret Edge Function)      | `https://nc-questionnaire.lovable.app,http://localhost:8080`                         | Solo il dominio di produzione (togliere localhost)                                                 |
-| Utente coach in `admins`                      | DA FARE: creare l'utente in Supabase Auth e inserire lo user-id in `public.admins`   | Fatto e verificato (login coach → legge le submission)                                             |
+| Utente coach in `admins`                      | FATTO: utente Auth creato e inserito in `public.admins`, lettura verificata          | Al primo login in-app ricontrollare che le submission siano visibili                               |
 
 **Con le chiavi di test il CAPTCHA non ferma niente**: qualunque token passa.
 Nessun dato reale finché gli swap non sono fatti.
@@ -59,11 +59,13 @@ L'UNICO canale di scrittura per il pubblico è la Edge Function
 - [x] **Migrazioni versionate allineate al live**: 7 migrazioni nel repo
       (0001–0007) = 7 applicate sul progetto (verificato con la lista
       migrazioni remota).
-- [ ] **Coach legge in-app**: da completare quando l'utente coach esiste
-      (creazione in Supabase Auth + insert in `admins` + login di prova).
-      La 0007 ha già aggiunto i GRANT `select/update` che mancavano al
-      ruolo `authenticated` (senza i quali le policy admin non potevano
-      produrre righe).
+- [x] **Coach legge**: utente Auth del coach inserito in `public.admins`;
+      simulando il suo JWT (`request.jwt.claims` con il suo `sub`) vede le
+      righe di submissions e health_screening, mentre un `authenticated`
+      con uid diverso ne vede 0. La 0007 ha aggiunto i GRANT
+      `select/update` che mancavano al ruolo `authenticated` (senza i
+      quali le policy admin non potevano produrre righe). Resta solo la
+      prova di login dall'app quando esisterà una UI coach.
 
 ## Lint degli advisor accettati (intenzionali)
 
