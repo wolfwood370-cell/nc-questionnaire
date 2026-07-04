@@ -13,6 +13,9 @@ const SUPABASE_ANON_KEY =
 const url = (import.meta.env.VITE_SUPABASE_URL as string | undefined) || SUPABASE_URL;
 const anonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) || SUPABASE_ANON_KEY;
 
+// Client del FORM PUBBLICO: nessuna sessione, superficie minima (il form non
+// fa login). L'area riservata /coach usa il client dedicato con sessione
+// persistente in src/lib/supabase-coach.ts (storageKey separata).
 export const supabase = createClient(url, anonKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
