@@ -13,6 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as CoachRouteImport } from './routes/coach'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoachIndexRouteImport } from './routes/coach.index'
+import { Route as CoachIdRouteImport } from './routes/coach.$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -34,16 +35,23 @@ const CoachIndexRoute = CoachIndexRouteImport.update({
   path: '/',
   getParentRoute: () => CoachRoute,
 } as any)
+const CoachIdRoute = CoachIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => CoachRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/coach': typeof CoachRouteWithChildren
   '/login': typeof LoginRoute
+  '/coach/$id': typeof CoachIdRoute
   '/coach/': typeof CoachIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/coach/$id': typeof CoachIdRoute
   '/coach': typeof CoachIndexRoute
 }
 export interface FileRoutesById {
@@ -51,14 +59,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/coach': typeof CoachRouteWithChildren
   '/login': typeof LoginRoute
+  '/coach/$id': typeof CoachIdRoute
   '/coach/': typeof CoachIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/coach' | '/login' | '/coach/'
+  fullPaths: '/' | '/coach' | '/login' | '/coach/$id' | '/coach/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/coach'
-  id: '__root__' | '/' | '/coach' | '/login' | '/coach/'
+  to: '/' | '/login' | '/coach/$id' | '/coach'
+  id: '__root__' | '/' | '/coach' | '/login' | '/coach/$id' | '/coach/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -97,14 +106,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoachIndexRouteImport
       parentRoute: typeof CoachRoute
     }
+    '/coach/$id': {
+      id: '/coach/$id'
+      path: '/$id'
+      fullPath: '/coach/$id'
+      preLoaderRoute: typeof CoachIdRouteImport
+      parentRoute: typeof CoachRoute
+    }
   }
 }
 
 interface CoachRouteChildren {
+  CoachIdRoute: typeof CoachIdRoute
   CoachIndexRoute: typeof CoachIndexRoute
 }
 
 const CoachRouteChildren: CoachRouteChildren = {
+  CoachIdRoute: CoachIdRoute,
   CoachIndexRoute: CoachIndexRoute,
 }
 
