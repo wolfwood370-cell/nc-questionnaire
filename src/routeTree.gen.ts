@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as CoachRouteImport } from './routes/coach'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CoachIndexRouteImport } from './routes/coach.index'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -28,34 +29,41 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoachIndexRoute = CoachIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CoachRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/coach': typeof CoachRoute
+  '/coach': typeof CoachRouteWithChildren
   '/login': typeof LoginRoute
+  '/coach/': typeof CoachIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/coach': typeof CoachRoute
   '/login': typeof LoginRoute
+  '/coach': typeof CoachIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/coach': typeof CoachRoute
+  '/coach': typeof CoachRouteWithChildren
   '/login': typeof LoginRoute
+  '/coach/': typeof CoachIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/coach' | '/login'
+  fullPaths: '/' | '/coach' | '/login' | '/coach/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/coach' | '/login'
-  id: '__root__' | '/' | '/coach' | '/login'
+  to: '/' | '/login' | '/coach'
+  id: '__root__' | '/' | '/coach' | '/login' | '/coach/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  CoachRoute: typeof CoachRoute
+  CoachRoute: typeof CoachRouteWithChildren
   LoginRoute: typeof LoginRoute
 }
 
@@ -82,12 +90,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/coach/': {
+      id: '/coach/'
+      path: '/'
+      fullPath: '/coach/'
+      preLoaderRoute: typeof CoachIndexRouteImport
+      parentRoute: typeof CoachRoute
+    }
   }
 }
 
+interface CoachRouteChildren {
+  CoachIndexRoute: typeof CoachIndexRoute
+}
+
+const CoachRouteChildren: CoachRouteChildren = {
+  CoachIndexRoute: CoachIndexRoute,
+}
+
+const CoachRouteWithChildren = CoachRoute._addFileChildren(CoachRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  CoachRoute: CoachRoute,
+  CoachRoute: CoachRouteWithChildren,
   LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
