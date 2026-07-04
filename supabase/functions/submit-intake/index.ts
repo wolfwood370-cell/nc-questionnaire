@@ -72,12 +72,18 @@ function allowedOrigins(): string[] {
     .filter(Boolean);
 }
 
-function corsHeaders(origin: string): Record<string, string> {
+function corsHeaders(origin: string, reqHeaders?: string | null): Record<string, string> {
   const ok = allowedOrigins().includes(origin);
   return {
     "Access-Control-Allow-Origin": ok ? origin : "null",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    // Riflette gli header richiesti dal preflight invece di una lista fissa:
+    // supabase-js aggiunge nuovi header tra le versioni (es.
+    // x-supabase-api-version) e una lista fissa fa fallire il preflight quando
+    // il client si aggiorna. Non indebolisce la sicurezza: la difesa è
+    // l'allowlist di Origin, non gli header ammessi.
+    "Access-Control-Allow-Headers":
+      reqHeaders || "authorization, x-client-info, apikey, content-type",
     "Access-Control-Max-Age": "86400",
     Vary: "Origin",
   };
@@ -271,7 +277,10 @@ Deno.serve(async (req) => {
   const origin = req.headers.get("origin") ?? "";
 
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders(origin) });
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders(origin, req.headers.get("access-control-request-headers")),
+    });
   }
   if (req.method !== "POST") {
     return json(405, { error: "method_not_allowed" }, origin);

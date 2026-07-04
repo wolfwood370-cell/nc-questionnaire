@@ -1,15 +1,18 @@
 import { createClient } from "@supabase/supabase-js";
 
-const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+// URL del progetto e anon key sono valori PUBBLICI del client (l'anon key è
+// progettata per stare nel browser: l'accesso ai dati è protetto da RLS e
+// dalla Edge Function con Turnstile). Vengono cablati come default perché
+// l'hosting (Lovable) non inietta le variabili VITE_* nel build pubblicato;
+// l'env resta come override per lo sviluppo locale. La service_role key, che
+// è segreta, non compare MAI qui: vive solo nei secret della Edge Function.
+const SUPABASE_URL = "https://srrmauojpficdswmtjya.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNycm1hdW9qcGZpY2Rzd210anlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMwMTk5MDMsImV4cCI6MjA5ODU5NTkwM30.zPaBX6GAQIOycb7NJIsdyY3E49LCr6ajVYyeYRTGz94";
 
-if (!url || !anonKey) {
-  // eslint-disable-next-line no-console
-  console.warn(
-    "[supabase] VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY non impostate. L'invio del questionario fallirà finché non vengono configurate.",
-  );
-}
+const url = (import.meta.env.VITE_SUPABASE_URL as string | undefined) || SUPABASE_URL;
+const anonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) || SUPABASE_ANON_KEY;
 
-export const supabase = createClient(url ?? "http://localhost", anonKey ?? "anon", {
+export const supabase = createClient(url, anonKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
