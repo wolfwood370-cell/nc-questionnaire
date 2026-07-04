@@ -13,6 +13,13 @@ const SUPABASE_ANON_KEY =
 const url = (import.meta.env.VITE_SUPABASE_URL as string | undefined) || SUPABASE_URL;
 const anonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) || SUPABASE_ANON_KEY;
 
+// La sessione viene persistita: serve all'area riservata /coach per allegare
+// automaticamente il JWT alle query (RLS filtra i dati). Il form pubblico non
+// effettua login, quindi resta anonimo come prima.
 export const supabase = createClient(url, anonKey, {
-  auth: { persistSession: false, autoRefreshToken: false },
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    storageKey: "sb-intake-auth",
+  },
 });
