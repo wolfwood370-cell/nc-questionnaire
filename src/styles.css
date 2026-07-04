@@ -45,6 +45,7 @@
   --color-ok-bg: var(--ok-bg);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+  --color-danger-bd: var(--danger-bd);
   --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
   --animate-nc-rise: ncRise 0.35s ease both;
@@ -135,6 +136,7 @@
   --ok-bg: #ecfdf5;
   --danger: #dc2626;
   --danger-soft: #fef2f2;
+  --danger-bd: rgba(220, 38, 38, 0.3);
   --bg-page: linear-gradient(135deg, #f2f3f8, #e7e8ec);
   --surface-blur-head: rgba(248, 249, 254, 0.82);
   --surface-blur-foot: rgba(255, 255, 255, 0.9);
@@ -243,5 +245,45 @@
   &::-webkit-scrollbar {
     height: 0;
     width: 0;
+  }
+}
+
+/* ---------- Area coach: griglia dettaglio + stampa (handoff Pagina Coach) ---------- */
+.coach-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (min-width: 940px) {
+  .coach-grid {
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
+  .coach-side {
+    position: sticky;
+    top: 80px;
+  }
+}
+.coach-printonly {
+  display: none;
+}
+@media print {
+  .coach-noprint {
+    display: none !important;
+  }
+  .coach-printonly {
+    display: flex !important;
+  }
+  .coach-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .coach-side {
+    position: static !important;
+  }
+  body {
+    background: #fff !important;
+  }
+  @page {
+    margin: 14mm;
   }
 }

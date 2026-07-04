@@ -451,6 +451,7 @@ type PillButtonProps = {
   variant?: "primary" | "outline";
   size?: "md" | "lg";
   className?: string;
+  type?: "button" | "submit";
   children: ReactNode;
 };
 
@@ -460,11 +461,12 @@ export function PillButton({
   variant = "primary",
   size = "md",
   className,
+  type = "button",
   children,
 }: PillButtonProps) {
   return (
     <button
-      type="button"
+      type={type}
       onClick={onClick}
       disabled={disabled}
       className={cn(
