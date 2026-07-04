@@ -23,15 +23,22 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (active && (event === "SIGNED_IN" || event === "INITIAL_SESSION") && session) {
+        navigate({ to: "/coach" });
+      }
+    });
     supabase.auth.getSession().then(({ data }) => {
       if (active && data.session) navigate({ to: "/coach" });
     });
     return () => {
       active = false;
+      subscription.unsubscribe();
     };
   }, [navigate]);
 
@@ -46,6 +53,21 @@ function LoginPage() {
       return;
     }
     navigate({ to: "/coach" });
+  }
+
+  async function signInWithGoogle() {
+    setError(null);
+    setGoogleLoading(true);
+    const { error: err } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin + "/login",
+      },
+    });
+    setGoogleLoading(false);
+    if (err) {
+      setError("Accesso con Google non riuscito. Riprova.");
+    }
   }
 
   return (
