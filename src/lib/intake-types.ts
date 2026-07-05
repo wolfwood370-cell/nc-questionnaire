@@ -23,6 +23,8 @@ export function consentsErrors(c: Consents): FieldErrors {
 export type Sex = "maschio" | "femmina";
 export type Pronoun = "tu_lei" | "tu_lui" | "voi_loro";
 
+export const CF_RE = /^[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]$/;
+
 export type Personal = {
   full_name: string;
   sex: Sex | "";
@@ -30,6 +32,8 @@ export type Personal = {
   birth_date: string;
   phone: string;
   email: string;
+  tax_code: string;
+  address: string;
 };
 
 export const emptyPersonal: Personal = {
@@ -39,6 +43,8 @@ export const emptyPersonal: Personal = {
   birth_date: "",
   phone: "",
   email: "",
+  tax_code: "",
+  address: "",
 };
 
 export function personalErrors(p: Personal): FieldErrors {
@@ -61,6 +67,11 @@ export function personalErrors(p: Personal): FieldErrors {
   }
   if (!p.phone.trim()) e.phone = "Inserisci un numero di telefono.";
   if (!EMAIL_RE.test(p.email.trim())) e.email = "Inserisci un'email valida.";
+  const cf = p.tax_code.trim().toUpperCase();
+  if (!cf) e.tax_code = "Inserisci il codice fiscale.";
+  else if (!CF_RE.test(cf)) e.tax_code = "Codice fiscale non valido (16 caratteri).";
+  if (!p.address.trim()) e.address = "Inserisci l'indirizzo completo.";
+  else if (p.address.trim().length < 5) e.address = "Indirizzo troppo breve.";
   return e;
 }
 

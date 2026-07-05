@@ -612,6 +612,8 @@ export function IntakeForm() {
         ["Data di nascita", "birth_date"],
         ["Telefono", "phone"],
         ["Email", "email"],
+        ["Codice fiscale", "tax_code"],
+        ["Indirizzo", "address"],
       ]);
     if (key === "salute") {
       const parqYes = PARQ_KEYS.filter((k) => health[k] === true).length;

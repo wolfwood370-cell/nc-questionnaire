@@ -83,6 +83,22 @@ export function Step1Personal({ value, onChange, errors }: Props) {
           />
         </Field>
       </Row>
+      <Field label="Codice fiscale" required error={errors.tax_code}>
+        <TextInput
+          value={value.tax_code}
+          onChange={(v) => set("tax_code", v.toUpperCase())}
+          error={errors.tax_code}
+          autoComplete="off"
+        />
+      </Field>
+      <Field label="Indirizzo completo" required error={errors.address} help="Via/numero, CAP, città, provincia">
+        <TextInput
+          value={value.address}
+          onChange={(v) => set("address", v)}
+          error={errors.address}
+          autoComplete="street-address"
+        />
+      </Field>
     </>
   );
 }

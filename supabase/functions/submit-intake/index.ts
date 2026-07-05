@@ -157,6 +157,8 @@ function validSubmission(s: Rec): boolean {
   if (Number.isNaN(Date.parse(s.birth_date))) return false;
   if (!isReqStr(s.phone, MAX_SHORT)) return false;
   if (!isReqStr(s.email, MAX_SHORT)) return false;
+  if (!isOptStr(s.tax_code, MAX_SHORT)) return false;
+  if (!isOptStr(s.address, MAX_TEXT)) return false;
   if (!isReqStr(s.equipment, MAX_TEXT)) return false;
   if (!isOptNum(s.height_cm, 300) || !isOptNum(s.weight_kg, 500)) return false;
   for (const k of [
