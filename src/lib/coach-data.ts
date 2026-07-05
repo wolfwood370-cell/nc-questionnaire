@@ -69,6 +69,8 @@ const SUBMISSION_TEXT_KEYS = [
   "birth_date",
   "phone",
   "email",
+  "tax_code",
+  "address",
   // numerici nel DB: toStr li rende stringhe come nel resto del modello
   "height_cm",
   "weight_kg",
